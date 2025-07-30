@@ -1,0 +1,2 @@
+ERROR: You have uncommitted code. Please commit or stash your changes before continuing
+ERROR: react_on_rails generator prerequisites not met!
