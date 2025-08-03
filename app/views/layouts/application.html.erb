@@ -19,11 +19,12 @@
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app %>
-    <%= javascript_pack_tag "application" %>
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
   </head>
 
   <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+    <div>This is a layout message</div>
+    <main>
       <%= yield %>
     </main>
   </body>

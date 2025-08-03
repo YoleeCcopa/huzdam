@@ -1,11 +1,8 @@
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+    # Important: The order of modules matters
+    devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable,
+         :confirmable 
 
-  has_secure_password validations: true  # this uses `password_digest`, see note below
-
-  validates :email, presence: true, uniqueness: true
-  validates :user_name, presence: true
+    include DeviseTokenAuth::Concerns::User
 end

@@ -1,1 +1,10 @@
 @import "tailwindcss";
+*,
+*::after,
+*::before {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: rgb(195, 134, 54);
+}
