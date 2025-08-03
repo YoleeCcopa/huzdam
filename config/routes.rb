@@ -7,5 +7,7 @@ Rails.application.routes.draw do
     end
   end
   
+  get '/login', to: 'home#login'
+  get '/dashboard', to: 'home#dashboard'
   get '*path', to: 'home#index', via: :all
 end

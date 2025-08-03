@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 
-const SignupForm = () => {
+const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmation, setConfirmation] = useState('');
   const [stayLoggedIn, setStayLoggedIn] = useState(true);
   const [error, setError] = useState(null);
 
-  const signup = async () => {
+  const login = async () => {
     setError(null);
 
     try {
-      const res = await fetch('/api/v1/auth', {
+      const res = await fetch('/api/v1/auth/sign_in', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -20,16 +19,12 @@ const SignupForm = () => {
         body: JSON.stringify({
           email,
           password,
-          password_confirmation: confirmation,
         }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        alert('Signup successful! Check your email to confirm.');
-
-        // ✅ Store token headers
         const tokenHeaders = {
           'access-token': res.headers.get('access-token'),
           client: res.headers.get('client'),
@@ -39,9 +34,9 @@ const SignupForm = () => {
         const storage = stayLoggedIn ? localStorage : sessionStorage;
         storage.setItem('authHeaders', JSON.stringify(tokenHeaders));
 
-        window.location.href = '/'; // or redirect to a dashboard
+        window.location.href = '/dashboard';
       } else {
-        setError(data.errors?.full_messages?.join(', ') || 'Signup failed');
+        setError(data.errors?.join(', ') || 'Login failed');
       }
     } catch (e) {
       setError('Unexpected error occurred');
@@ -50,24 +45,19 @@ const SignupForm = () => {
   };
 
   return (
-    <div id="signup-root">
-      <h2>Sign Up</h2>
+    <div id="login-root">
+      <h2>Login</h2>
       <input
+        type="email"
         placeholder="Email"
-        onChange={e => setEmail(e.target.value)}
         value={email}
+        onChange={e => setEmail(e.target.value)}
       />
       <input
         type="password"
         placeholder="Password"
-        onChange={e => setPassword(e.target.value)}
         value={password}
-      />
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        onChange={e => setConfirmation(e.target.value)}
-        value={confirmation}
+        onChange={e => setPassword(e.target.value)}
       />
       <label style={{ display: 'block', marginTop: '10px' }}>
         <input
@@ -77,10 +67,10 @@ const SignupForm = () => {
         />
         Stay logged in after closing the browser
       </label>
-      <button onClick={signup}>Sign Up</button>
+      <button onClick={login}>Login</button>
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 };
 
-export default SignupForm;
+export default LoginForm;
