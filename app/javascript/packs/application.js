@@ -3,6 +3,9 @@ import { createRoot } from "react-dom/client";
 import SignupForm from "../components/SignupForm";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const root = createRoot(document.getElementById("signup-root"));
-  root.render(<SignupForm />);
+    const container = document.getElementById("signup-root");
+    if (container) {
+        const root = createRoot(container);
+        root.render( <SignupForm /> );
+    }
 });

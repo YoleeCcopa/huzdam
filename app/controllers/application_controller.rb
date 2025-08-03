@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
-        include DeviseTokenAuth::Concerns::SetUserByToken
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  protect_from_forgery with: :exception
+
+  # Skip CSRF for JSON requests (typical for APIs using token auth)
+  skip_before_action :verify_authenticity_token, if: -> { request.format.json? }
 end
