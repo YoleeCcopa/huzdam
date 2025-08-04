@@ -1,17 +1,30 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './Login';
-import Signup from './SignupForm';
-import Dashboard from './HelloWorld';
+import SignupForm from './SignupForm';
+import LoginForm from './LoginForm';
+import Dashboard from './Dashboard';
+import useAuthGuard from '../hooks/useAuthGuard';
+
+const ProtectedRoute = ({ children }) => {
+  useAuthGuard();
+  return children;
+};
 
 const App = () => {
-  const isAuthenticated = !!localStorage.getItem('access-token');
-
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />} />
+        <Route path="/signup" element={<SignupForm />} />
+        <Route path="/login" element={<LoginForm />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );
