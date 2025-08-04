@@ -12,6 +12,22 @@ export const clearAuthHeaders = () => {
   sessionStorage.removeItem('authHeaders');
 };
 
+export const validateToken = async () => {
+  const headers = getAuthHeaders();
+  if (!headers) return false;
+
+  const res = await fetch('/api/v1/auth/validate_token', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...headers,
+    },
+  });
+
+  return res.ok;
+};
+
 export const logout = async () => {
   const headers = getAuthHeaders();
   console.log(headers);

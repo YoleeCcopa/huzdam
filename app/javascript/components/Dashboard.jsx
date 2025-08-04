@@ -1,14 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import useAuthGuard from '../hooks/useAuthGuard';
 import { getAuthHeaders, logout } from '../utils/auth';
 
 const Dashboard = () => {
-
-  useEffect(() => {
-  const headers = getAuthHeaders();
-  if (!headers) {
-      window.location.href = '/login';
-    }
-  }, []);
+  useAuthGuard(); // Redirects to /login if no auth token
 
   return (
     <div>
