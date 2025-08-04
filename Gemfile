@@ -35,7 +35,7 @@ gem "thruster", require: false
 # gem "image_processing", "~> 1.2"
 
 # Apply the gem to those groups, the other will only load the gem when the group is selected
-gem "dotenv-rails", groups: [:development, :test]
+gem "dotenv-rails", groups: [ :development, :test ]
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

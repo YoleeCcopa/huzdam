@@ -14,30 +14,30 @@ default: &default
 
 development:
   <<: *default
-  database: <%= ENV.fetch("DB_NAME_DEV") || "huzdam_development" %>
+  database: <%= ENV["DB_NAME_DEV"] || "huzdam_development" %>
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: <%= ENV.fetch("DB_NAME_TEST") || "huzdam_test" %>
+  database: <%= ENV["DB_NAME_TEST"] || "huzdam_test" %>
 
 # Store production database in the storage/ directory, which by default
 # is mounted as a persistent Docker volume in config/deploy.yml.
 production:
   primary:
     <<: *default
-    database: <%= ENV.fetch("DB_NAME_PRODUCTION") || "huzdam_production" %>
+    database: <%= ENV["DB_NAME_PRODUCTION"] || "huzdam_production" %>
   cache:
     <<: *default
-    database: <%= ENV.fetch("DB_NAME_PRODUCTION_CACHE") || "huzdam_production_cache" %>
+    database: <%= ENV["DB_NAME_PRODUCTION_CACHE"] || "huzdam_production_cache" %>
     migrations_paths: db/cache_migrate
   queue:
     <<: *default
-    database: <%= ENV.fetch("DB_NAME_PRODUCTION_QUEUE") || "huzdam_production_queue" %>
+    database: <%= ENV["DB_NAME_PRODUCTION_QUEUE"] || "huzdam_production_queue" %>
     migrations_paths: db/queue_migrate
   cable:
     <<: *default
-    database: <%= ENV.fetch("DB_NAME_PRODUCTION_CABLE") || "huzdam_production_cable" %>
+    database: <%= ENV["DB_NAME_PRODUCTION_CABLE"] || "huzdam_production_cable" %>
     migrations_paths: db/cable_migrate
