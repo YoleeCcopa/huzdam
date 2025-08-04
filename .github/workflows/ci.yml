@@ -45,9 +45,10 @@ jobs:
         image: postgres:15
         ports: ['5432:5432']
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: huzdam_test
+          RAILS_ENV: test
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_HOST: localhost
           
     steps:
       - name: Install packages
