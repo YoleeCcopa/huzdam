@@ -67,10 +67,9 @@ jobs:
           --health-retries=5
     env:
       RAILS_ENV: test
-      RAILS_MAX_THREADS: ${{ vars.RAILS_MAX_THREADS }}
       DB_HOST: localhost
-      DB_USERNAME: ${{ secrets.DB_USERNAME }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_USERNAME: myuser
+      DB_PASSWORD: mypassword
 
     steps:
       - name: Install dependencies
