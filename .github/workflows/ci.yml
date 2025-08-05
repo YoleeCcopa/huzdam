@@ -1,84 +1,129 @@
 name: CI
 
 on:
-  pull_request:
   push:
-    branches: [ main ]
+    branches: [main]
+  pull_request:
 
 jobs:
   scan_ruby:
+    name: Brakeman Scan
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Read Ruby version
+        id: ruby
+        run: echo "ruby_version=$(cat .ruby-version)" >> $GITHUB_OUTPUT
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: .ruby-version
+          ruby-version: ${{ steps.ruby.outputs.ruby_version }}
           bundler-cache: true
 
-      - name: Scan for common Rails security vulnerabilities using static analysis
+      - name: Scan for Rails security issues
         run: bin/brakeman --no-pager
 
   lint:
+    name: RuboCop Lint
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Read Ruby version
+        id: ruby
+        run: echo "ruby_version=$(cat .ruby-version)" >> $GITHUB_OUTPUT
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: .ruby-version
+          ruby-version: ${{ steps.ruby.outputs.ruby_version }}
           bundler-cache: true
 
-      - name: Lint code for consistent style
+      - name: Lint code with RuboCop
         run: bin/rubocop -f github
 
   test:
+    name: Run Tests
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:15
         ports: ['5432:5432']
         env:
-          RAILS_ENV: test
-          RAILS_MAX_THREADS: ${{ vars.RAILS_MAX_THREADS }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_HOST: localhost
-          
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      RAILS_ENV: test
+      DB_HOST: localhost
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      RAILS_MAX_THREADS: 5
+
     steps:
-      - name: Install packages
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config google-chrome-stable
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            build-essential git libyaml-dev pkg-config \
+            xvfb libnss3 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 \
+            libxcomposite1 libxcursor1 libxdamage1 libxrandr2 libgbm1 \
+            libasound2t64 libpangocairo-1.0-0 libgtk-3-0 libxss1 unzip wget
+
+          # Install Google Chrome
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | \
+            sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Read Ruby version
+        id: ruby
+        run: echo "ruby_version=$(cat .ruby-version)" >> $GITHUB_OUTPUT
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: .ruby-version
+          ruby-version: ${{ steps.ruby.outputs.ruby_version }}
           bundler-cache: true
 
-      - name: Run tests
-        env:
-          RAILS_ENV: test
-          # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:prepare && bin/rails test
-
-      - name: Keep screenshots from failed system tests
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
-          if-no-files-found: ignore
-
-      - name: Setup xvfb
+      - name: Start xvfb
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb $DISPLAY -screen 0 1920x1080x24 &
+          echo "DISPLAY=$DISPLAY" >> $GITHUB_ENV
+
+      - name: Prepare database
+        run: bin/rails db:prepare
+        
+      - name: Install JS dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Precompile JS assets with Shakapacker for test
+        run: bin/shakapacker
+
+      - name: Run tests
+        run: bin/rails test
+
+      - name: Upload failed test screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: tmp/screenshots
+          if-no-files-found: ignore
