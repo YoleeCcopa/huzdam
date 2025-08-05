@@ -111,6 +111,9 @@ jobs:
       - name: Prepare database
         run: bin/rails db:prepare
 
+      - name: Precompile JS assets with Shakapacker for test
+        run: bin/shakapacker
+
       - name: Run tests
         run: bin/rails test
 
