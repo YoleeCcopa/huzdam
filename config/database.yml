@@ -14,31 +14,32 @@ default: &default
 
 development:
   <<: *default
-  database: myapp_development
+  database: huzdam_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: myapp_test
-
+  database: huzdam_test
+  username: postgres
+  password: postgres
 
 # Store production database in the storage/ directory, which by default
 # is mounted as a persistent Docker volume in config/deploy.yml.
 production:
   primary:
     <<: *default
-    database: myapp_production
+    database: huzdam_production
   cache:
     <<: *default
-    database: myapp_production_cache
+    database: huzdam_production_cache
     migrations_paths: db/cache_migrate
   queue:
     <<: *default
-    database: myapp_production_queue
+    database: huzdam_production_queue
     migrations_paths: db/queue_migrate
   cable:
     <<: *default
-    database: myapp_production_cable
+    database: huzdam_production_cable
     migrations_paths: db/cable_migrate
