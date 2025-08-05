@@ -115,6 +115,9 @@ GEM
       devise (> 3.5.2, < 5)
       rails (>= 4.2.0, < 8.1)
     dotenv (3.1.8)
+    dotenv-rails (3.1.8)
+      dotenv (= 3.1.8)
+      railties (>= 6.1)
     drb (2.2.3)
     ed25519 (1.4.0)
     erb (5.0.2)
@@ -368,10 +371,10 @@ GEM
     tailwindcss-ruby (4.1.11-x86_64-linux-gnu)
     tailwindcss-ruby (4.1.11-x86_64-linux-musl)
     thor (1.4.0)
-    thruster (0.1.14)
-    thruster (0.1.14-aarch64-linux)
-    thruster (0.1.14-x86_64-darwin)
-    thruster (0.1.14-x86_64-linux)
+    thruster (0.1.15)
+    thruster (0.1.15-aarch64-linux)
+    thruster (0.1.15-x86_64-darwin)
+    thruster (0.1.15-x86_64-linux)
     timeout (0.4.3)
     tsort (0.2.0)
     tzinfo (2.0.6)
@@ -416,6 +419,7 @@ DEPENDENCIES
   debug
   devise (~> 4.9)
   devise_token_auth
+  dotenv-rails
   jbuilder
   kamal
   letter_opener
