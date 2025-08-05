@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
 
 jobs:
@@ -57,19 +57,20 @@ jobs:
         image: postgres:15
         ports: ['5432:5432']
         env:
-          RAILS_MAX_THREADS: ${{ vars.RAILS_MAX_THREADS }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
         options: >-
           --health-cmd="pg_isready -U postgres"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+
     env:
       RAILS_ENV: test
       DB_HOST: localhost
-      DB_USERNAME: myuser
-      DB_PASSWORD: mypassword
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      RAILS_MAX_THREADS: 5
 
     steps:
       - name: Install dependencies
