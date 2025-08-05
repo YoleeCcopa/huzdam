@@ -210,12 +210,10 @@ GEM
     parser (3.3.9.0)
       ast (~> 2.4.1)
       racc
-    pg (1.6.1)
-    pg (1.6.1-aarch64-linux)
-    pg (1.6.1-aarch64-linux-musl)
-    pg (1.6.1-x86_64-darwin)
-    pg (1.6.1-x86_64-linux)
-    pg (1.6.1-x86_64-linux-musl)
+    pg (1.6.0)
+    pg (1.6.0-aarch64-linux)
+    pg (1.6.0-x86_64-darwin)
+    pg (1.6.0-x86_64-linux)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
@@ -228,11 +226,11 @@ GEM
       date
       stringio
     public_suffix (6.0.2)
-    puma (6.6.1)
+    puma (6.6.0)
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.2.0)
+    rack (3.1.16)
     rack-cors (3.0.0)
       logger
       rack (>= 3.0.14)
@@ -279,7 +277,7 @@ GEM
     rdoc (6.14.2)
       erb
       psych (>= 4.0.0)
-    react_on_rails (14.2.1)
+    react_on_rails (14.0.4)
       addressable
       connection_pool
       execjs (~> 2.5)
@@ -371,10 +369,10 @@ GEM
     tailwindcss-ruby (4.1.11-x86_64-linux-gnu)
     tailwindcss-ruby (4.1.11-x86_64-linux-musl)
     thor (1.4.0)
-    thruster (0.1.15)
-    thruster (0.1.15-aarch64-linux)
-    thruster (0.1.15-x86_64-darwin)
-    thruster (0.1.15-x86_64-linux)
+    thruster (0.1.14)
+    thruster (0.1.14-aarch64-linux)
+    thruster (0.1.14-x86_64-darwin)
+    thruster (0.1.14-x86_64-linux)
     timeout (0.4.3)
     tsort (0.2.0)
     tzinfo (2.0.6)
@@ -428,7 +426,7 @@ DEPENDENCIES
   puma (>= 5.0)
   rack-cors
   rails (~> 8.0.2)
-  react_on_rails (= 14.2.1)
+  react_on_rails (= 14.0.4)
   rubocop-rails-omakase
   selenium-webdriver
   shakapacker (= 8.3)
@@ -443,3 +441,4 @@ DEPENDENCIES
 
 BUNDLED WITH
    2.7.1
+   
