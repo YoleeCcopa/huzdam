@@ -80,8 +80,7 @@ jobs:
             build-essential git libyaml-dev pkg-config \
             xvfb libnss3 libatk1.0-0 libatk-bridge2.0-0 libx11-xcb1 \
             libxcomposite1 libxcursor1 libxdamage1 libxrandr2 libgbm1 \
-            libasound2 libpangocairo-1.0-0 libgtk-3-0 wget gconf-service \
-            libxss1 libappindicator1 libindicator7 unzip
+            libasound2t64 libpangocairo-1.0-0 libgtk-3-0 libxss1 unzip wget
 
           # Install Google Chrome
           wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
