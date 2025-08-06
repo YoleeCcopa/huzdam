@@ -3,8 +3,10 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      resources :users
       mount_devise_token_auth_for "User", at: "auth"
+      resources :users
+      resources :areas, only: [:index, :create, :update, :patch, :destroy]
+      resources :user_roles, only: [:create, :update, :destroy]
     end
   end
 

@@ -1,17 +1,21 @@
 class Container < ApplicationRecord
   belongs_to :user
-  belongs_to :parent, polymorphic: true
+  belongs_to :parent, polymorphic: true, optional: true
 
   has_many :containers, as: :parent, dependent: :destroy
   has_many :items, as: :parent, dependent: :destroy
 
-  validates :name, presence: true
+  validates :name, :description, presence: true
 
+  # All containers under this container (direct + one level nested)
   def all_containers
-    containers + containers.flat_map(&:all_containers)
+    Container.where(parent: self)
+             .or(Container.where(parent: containers))
   end
 
+  # All items under this container (direct + containers)
   def all_items
-    items + containers.flat_map(&:all_items)
+    Item.where(parent: self)
+        .or(Item.where(parent: containers))
   end
 end
