@@ -1,6 +1,6 @@
-class Api::V1::AreasController < ApplicationController
-  before_action :authenticate_user!          # Devise Token Auth
-  load_and_authorize_resource                # CanCanCan: ensures user can access the area
+class Api::V1::AreasController < Api::V1::BaseController
+  before_action :authenticate_user!
+  load_and_authorize_resource
 
   # GET /api/v1/areas
   def index
@@ -18,9 +18,8 @@ class Api::V1::AreasController < ApplicationController
     end
   end
 
-  # PATCH/PUT /api/v1/areas/:id
+  # PATCH /api/v1/areas/:id
   def update
-    # Only update fields that are present in the request
     if @area.update(area_params)
       render json: @area
     else
@@ -36,7 +35,6 @@ class Api::V1::AreasController < ApplicationController
 
   private
 
-  # Permit only the fields users are allowed to update
   def area_params
     params.require(:area).permit(:name, :description)
   end

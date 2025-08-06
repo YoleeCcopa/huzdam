@@ -7,29 +7,17 @@ class Container < ApplicationRecord
 
   validates :name, :description, presence: true
 
-  # Recursive descendants (containers)
-  def self.recursive_descendants(root_container)
-    recursive_sql = <<~SQL
-      WITH RECURSIVE container_tree AS (
-        SELECT * FROM containers WHERE id = #{root_container.id}
-        UNION ALL
-        SELECT c.* FROM containers c
-        INNER JOIN container_tree ct ON c.parent_type = 'Container' AND c.parent_id = ct.id
-      )
-      SELECT * FROM container_tree WHERE id != #{root_container.id}
-    SQL
-
-    Container.find_by_sql(recursive_sql)
-  end
-
-  # All containers nested inside this container (recursive)
+  # All containers nested inside this container (direct)
   def all_containers
-    self.class.recursive_descendants(self)
+    Container.where(parent_type: "Container", parent_id: id)
   end
 
-  # All items inside this container or any nested containers
+  # All items under this container (direct + from child containers)
   def all_items
-    Item.where(parent: self)
-        .or(Item.where(parent: all_containers))
+    Item.where(
+      "(parent_type = ? AND parent_id = ?) OR (parent_type = ? AND parent_id IN (?))",
+      "Container", id,
+      "Container", all_containers.select(:id)
+    )
   end
 end

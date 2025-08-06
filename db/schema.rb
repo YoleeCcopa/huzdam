@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_06_013119) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_06_040845) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_013119) do
     t.bigint "user_id", null: false
     t.string "object_type", null: false
     t.bigint "object_id", null: false
+    t.boolean "hidden", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["object_type", "object_id"], name: "index_denied_accesses_on_object"
@@ -83,12 +84,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_013119) do
 
   create_table "shelves", force: :cascade do |t|
     t.bigint "user_id", null: false
+    t.bigint "area_id", null: false
     t.string "name", null: false
     t.text "description"
     t.text "template"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "area_id"
     t.index ["area_id"], name: "index_shelves_on_area_id"
     t.index ["user_id"], name: "index_shelves_on_user_id"
   end
