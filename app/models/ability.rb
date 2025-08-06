@@ -1,13 +1,10 @@
-# frozen_string_literal: true
-
 class Ability
   include CanCan::Ability
 
   def initialize(user)
-    user ||= User.new
+    user ||= User.new # guest
 
-    # Load all object-scoped roles for the user
-    user.user_roles.includes(role: :permissions, object: []).each do |user_role|
+    user.user_roles.includes(role: :permissions).each do |user_role|
       role = user_role.role
       object = user_role.object
 
@@ -18,22 +15,13 @@ class Ability
         # Grant permission on the specific object
         can permission.action.to_sym, subject_class, id: object.id
 
-        # Cascade logic
-        case object
-        when Area
-          # Access all shelves inside this Area
-          can permission.action.to_sym, Shelf, area_id: object.id
-          # Access all containers and items inside those shelves
-          can permission.action.to_sym, Container, parent: Shelf.where(area_id: object.id)
-          can permission.action.to_sym, Item, parent: Container.joins("JOIN shelves ON containers.parent_id = shelves.id AND containers.parent_type = 'Shelf'").where(shelves: { area_id: object.id })
-        when Shelf
-          # Access containers and items inside the Shelf
-          can permission.action.to_sym, Container, parent: object
-          can permission.action.to_sym, Item, parent: Container.where(parent: object)
-        when Container
-          # Access nested containers and items
-          can permission.action.to_sym, Container, parent: object
-          can permission.action.to_sym, Item, parent: object
+        # Cascade permissions if the object responds to `all_items` or `all_containers`
+        if object.respond_to?(:all_containers)
+          can permission.action.to_sym, Container, id: object.all_containers.select(:id)
+        end
+
+        if object.respond_to?(:all_items)
+          can permission.action.to_sym, Item, id: object.all_items.select(:id)
         end
       end
     end
@@ -49,7 +37,6 @@ class Ability
 
   private
 
-  # Convert string like "shelf" into Shelf constant safely
   def safe_constantize(subject)
     subject.classify.safe_constantize
   rescue NameError
