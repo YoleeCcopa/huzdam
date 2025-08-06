@@ -19,7 +19,7 @@ class User < ApplicationRecord
     def denied?(object)
         denied_accesses.exists?(object: object)
     end
-    
+
     def can_access?(object, action)
         ability = Ability.new(self)
         ability.can?(action, object)

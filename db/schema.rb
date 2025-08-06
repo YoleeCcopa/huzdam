@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_06_010824) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_06_013119) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "areas", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_areas_on_user_id"
+  end
 
   create_table "containers", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -79,6 +88,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_010824) do
     t.text "template"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "area_id"
+    t.index ["area_id"], name: "index_shelves_on_area_id"
     t.index ["user_id"], name: "index_shelves_on_user_id"
   end
 
@@ -123,9 +134,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_010824) do
     t.index ["user_name"], name: "index_users_on_user_name", unique: true
   end
 
+  add_foreign_key "areas", "users"
   add_foreign_key "containers", "users"
   add_foreign_key "denied_accesses", "users"
   add_foreign_key "items", "users"
+  add_foreign_key "shelves", "areas"
   add_foreign_key "shelves", "users"
   add_foreign_key "user_roles", "roles"
   add_foreign_key "user_roles", "users"

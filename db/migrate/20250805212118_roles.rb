@@ -28,7 +28,7 @@ class Roles < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :user_roles, [:user_id, :object_type, :object_id], unique: true, name: "index_user_roles_on_user_and_object"
+    add_index :user_roles, [ :user_id, :object_type, :object_id ], unique: true, name: "index_user_roles_on_user_and_object"
 
     create_table :denied_accesses do |t|
       t.references :user, null: false, foreign_key: true
@@ -37,6 +37,6 @@ class Roles < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :denied_accesses, [:user_id, :object_type, :object_id], unique: true, name: "index_denied_accesses_on_user_and_object"
+    add_index :denied_accesses, [ :user_id, :object_type, :object_id ], unique: true, name: "index_denied_accesses_on_user_and_object"
   end
 end
