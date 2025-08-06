@@ -1,5 +1,4 @@
 class Item < ApplicationRecord
-  belongs_to :container
-
-  delegate :shelf, to: :container
+  belongs_to :user
+  belongs_to :parent, polymorphic: true
 end

@@ -1,4 +1,7 @@
 class Container < ApplicationRecord
-  belongs_to :shelf
-  has_many :items, dependent: :destroy
+  belongs_to :user
+  belongs_to :parent, polymorphic: true
+
+  has_many :containers, as: :parent, dependent: :destroy
+  has_many :items, as: :parent, dependent: :destroy
 end
