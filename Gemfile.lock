@@ -86,6 +86,7 @@ GEM
     brakeman (7.1.0)
       racc
     builder (3.3.0)
+    cancancan (3.6.1)
     capybara (3.40.0)
       addressable
       matrix
@@ -413,6 +414,7 @@ DEPENDENCIES
   bcrypt (~> 3.1.7)
   bootsnap
   brakeman
+  cancancan (~> 3.6.1)
   capybara
   debug
   devise (~> 4.9)
@@ -441,4 +443,3 @@ DEPENDENCIES
 
 BUNDLED WITH
    2.7.1
-   
