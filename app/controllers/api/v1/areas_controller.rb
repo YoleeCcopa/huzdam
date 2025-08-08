@@ -11,6 +11,7 @@ class Api::V1::AreasController < Api::V1::BaseController
 
   # GET /api/v1/areas/:id
   def show
+    Rails.logger.debug("Current User: #{current_user.inspect}")
     render json: @area
   end
 
