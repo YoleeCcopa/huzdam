@@ -5,7 +5,7 @@ class Ability
     user ||= User.new # guest
 
     # Permissions via UserRoles
-    user.user_roles.includes(role: :permissions, object: [:shelves, :containers, :items]).each do |user_role|
+    user.user_roles.includes(role: :permissions, object: [ :shelves, :containers, :items ]).each do |user_role|
       role   = user_role.role
       object = user_role.object
 
@@ -13,7 +13,7 @@ class Ability
       role.permissions.each do |permission|
         subject_class = safe_constantize(permission.subject)
         next unless subject_class
-        
+
         # Grant permission for the object or its nested children
         can permission.action.to_sym, subject_class do |obj|
           cascade_access?(obj, object)

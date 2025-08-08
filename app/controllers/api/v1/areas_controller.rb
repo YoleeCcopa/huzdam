@@ -1,5 +1,5 @@
 class Api::V1::AreasController < Api::V1::BaseController
-  before_action :set_area, only: [:show, :update, :destroy]
+  before_action :set_area, only: [ :show, :update, :destroy ]
   # load_and_authorize_resource
 
   # GET /api/v1/areas
@@ -30,7 +30,7 @@ class Api::V1::AreasController < Api::V1::BaseController
   # PATCH /api/v1/areas/:id
   def update
     unless @area.editable_by?(current_user)
-      render json: { error: 'You are not authorized to edit this area' }, status: :forbidden
+      render json: { error: "You are not authorized to edit this area" }, status: :forbidden
       return
     end
 
@@ -44,7 +44,7 @@ class Api::V1::AreasController < Api::V1::BaseController
   # DELETE /api/v1/areas/:id
   def destroy
     unless @area.deletable_by?(current_user)
-      render json: { error: 'You are not authorized to delete this area' }, status: :forbidden
+      render json: { error: "You are not authorized to delete this area" }, status: :forbidden
       return
     end
 

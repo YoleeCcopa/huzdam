@@ -1,4 +1,4 @@
-require_dependency 'object_permissions'  # This ensures the file is loaded.
+require_dependency "object_permissions"  # This ensures the file is loaded.
 
 class Area < ApplicationRecord
   include ObjectPermissions

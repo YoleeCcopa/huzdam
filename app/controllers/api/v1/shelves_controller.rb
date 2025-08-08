@@ -1,5 +1,5 @@
 class Api::V1::ShelvesController < Api::V1::BaseController
-  before_action :set_area, only: [:create]
+  before_action :set_area, only: [ :create ]
   # load_and_authorize_resource
 
   # GET /api/v1/shelves
