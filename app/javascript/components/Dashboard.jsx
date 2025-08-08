@@ -8,28 +8,56 @@ const Dashboard = () => {
   const [areas, setAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newAreaName, setNewAreaName] = useState('');
+  const [error, setError] = useState(null); // For handling errors
 
   // Fetch areas when the component mounts
   useEffect(() => {
     const getAreas = async () => {
-      const areas = await fetchAreas();
-      setAreas(areas);
-      setLoading(false);
+      try {
+        const areas = await fetchAreas();
+        setAreas(areas);
+      } catch (error) {
+        setError('Failed to load areas.'); // Set error if the fetch fails
+      } finally {
+        setLoading(false); // Set loading to false once the fetch is complete
+      }
     };
 
     getAreas();
   }, []);
   
-  // Utility function for making API calls
+  // Utility function for making API calls to fetch areas
   const fetchAreas = async () => {
     const response = await fetch('/api/v1/areas', {
       method: 'GET',
       headers: getAuthHeaders(),
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch areas'); // Throw an error if the response is not ok
+    }
+
     const data = await response.json();
     return data;
   };
 
+  // Handle creating a new area
+  const handleCreateArea = async () => {
+    if (newAreaName.trim()) {
+      try {
+        const newArea = { name: newAreaName, description: '' };
+        const createdArea = await createArea(newArea);
+        setAreas([...areas, createdArea]); // Update state with new area
+        setNewAreaName(''); // Reset input field
+      } catch (error) {
+        setError('Failed to create area.'); // Show error if creation fails
+      }
+    } else {
+      setError('Area name cannot be empty.'); // Show error if input is empty
+    }
+  };
+
+  // Utility function to create a new area
   const createArea = async (newArea) => {
     const response = await fetch('/api/v1/areas', {
       method: 'POST',
@@ -44,6 +72,7 @@ const Dashboard = () => {
       return data;
     } else {
       console.error('Error creating area:', data.errors);
+      throw new Error('Error creating area'); // Throw error if creation fails
     }
   };
 
@@ -56,20 +85,13 @@ const Dashboard = () => {
     }
   };
 
-  // Handle creating a new area
-  const handleCreateArea = async () => {
-    if (newAreaName.trim()) {
-      const newArea = { name: newAreaName, description: '' };
-      const createdArea = await createArea(newArea);
-      setAreas([...areas, createdArea]);
-      setNewAreaName('');
-    }
-  };
-
   return (
     <div>
       <h1>Welcome to your Dashboard</h1>
       <button onClick={logout}>Logout</button>
+
+      {/* Error message */}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {/* Create new area */}
       <div>

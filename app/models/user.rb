@@ -9,6 +9,11 @@ class User < ApplicationRecord
     has_many :user_roles, dependent: :destroy
     has_many :denied_accesses, dependent: :destroy
 
+    has_many :areas
+    has_many :shelves
+    has_many :containers
+    has_many :items
+
     belongs_to :role, optional: true # optional global role (if needed)
 
     # Shortcut: get a role for a given object
