@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import useAuthGuard from '../hooks/useAuthGuard';
 import { logout } from '../utils/auth';
-import { get, post } from '../utils/api';
+import { get, post, patch } from '../utils/api';
 import AreaForm from './areas/AreaForm';
+import AreaDisplay from './areas/AreaDisplay';
+import { getAuthHeaders, validateToken } from '../utils/auth';
 
 const Dashboard = () => {
   useAuthGuard(); // Redirects to /login if no auth token
@@ -37,6 +39,24 @@ const Dashboard = () => {
     }
   };
 
+  // API call to update the area (name or description)
+  const onUpdateArea = async (areaId, field, newValue) => {
+    // const updatedArea = { [field]: newValue }; // Update only the field that was changed
+    try {
+      // Call the patch function from the apiUtils
+      const updatedArea = await patch(`/api/v1/areas/${areaId}`, { [field]: newValue });
+
+      // Update only the field that was changed in the state
+      setAreas((prevAreas) =>
+        prevAreas.map((area) =>
+          area.id === areaId ? { ...area, [field]: newValue } : area
+        )
+      );
+    } catch (error) {
+      console.error('Error updating area:', error);
+    }
+  };
+
   return (
     <div>
       <h1>Welcome to your Dashboard</h1>
@@ -49,18 +69,7 @@ const Dashboard = () => {
       <AreaForm handleCreateArea={handleCreateArea} />
 
       {/* Display areas */}
-      {loading ? (
-        <p>Loading areas...</p>
-      ) : (
-        <div>
-          <h2>Your Areas</h2>
-          <ul>
-            {areas.map((area) => (
-              <li key={area.id}>{area.name}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <AreaDisplay data={areas} loading={loading} onUpdateArea={onUpdateArea} />
     </div>
   );
 };
