@@ -1,9 +1,27 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# db/seeds.rb
+
+ACTIONS = [ 'read', 'create', 'edit', 'move', 'transfer', 'delete' ]
+SUBJECTS = [ 'shelf', 'container', 'item' ]
+
+# Create Permissions for each action and subject combination
+ACTIONS.each do |action|
+  SUBJECTS.each do |subject|
+    permission = Permission.find_or_create_by(action: action, subject: subject)
+    puts "Created permission: #{permission.action}_#{permission.subject}"
+  end
+end
+
+ACTIONS_AREA = [ 'read', 'edit', 'transfer', 'delete' ]
+
+# Create Permissions for each action and subject combination for 'area'
+ACTIONS_AREA.each do |action|
+  permission = Permission.find_or_create_by(action: action, subject: 'area')
+  puts "Created permission: #{permission.action}_#{permission.subject}"
+end
+
+# Create Admin Role and assign all permissions
+admin_role = Role.find_or_create_by(name: 'admin')
+permissions = Permission.all
+admin_role.permissions << permissions
+
+puts "Assigned all permissions to the Admin role."

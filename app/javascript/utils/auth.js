@@ -30,7 +30,6 @@ export const validateToken = async () => {
 
 export const logout = async () => {
   const headers = getAuthHeaders();
-  console.log(headers);
   if (!headers) return;
 
   const res = await fetch('/api/v1/auth/sign_out', {
@@ -41,8 +40,6 @@ export const logout = async () => {
       ...headers,
     },
   });
-
-  console.log(res);
 
   if (res.ok) {
     clearAuthHeaders();

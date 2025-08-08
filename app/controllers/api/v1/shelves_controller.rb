@@ -1,6 +1,6 @@
 class Api::V1::ShelvesController < Api::V1::BaseController
-  before_action :authenticate_user!
-  load_and_authorize_resource
+  before_action :set_area, only: [:create]
+  # load_and_authorize_resource
 
   # GET /api/v1/shelves
   def index
@@ -10,11 +10,14 @@ class Api::V1::ShelvesController < Api::V1::BaseController
 
   # POST /api/v1/shelves
   def create
-    @shelf = current_user.shelves.build(shelf_params)
+    @shelf = Shelf.new(shelf_params)
+    @shelf.user = current_user
+    @shelf.parent = @area  # Set parent as Area
+
     if @shelf.save
       render json: @shelf, status: :created
     else
-      render json: { errors: @shelf.errors.full_messages }, status: :unprocessable_entity
+      render json: @shelf.errors, status: :unprocessable_entity
     end
   end
 
@@ -35,7 +38,11 @@ class Api::V1::ShelvesController < Api::V1::BaseController
 
   private
 
+  def set_area
+    @area = Area.find(params[:area_id])
+  end
+
   def shelf_params
-    params.require(:shelf).permit(:name, :description, :area_id)
+    params.require(:shelf).permit(:name, :description)
   end
 end

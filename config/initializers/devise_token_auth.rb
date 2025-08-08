@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 DeviseTokenAuth.setup do |config|
-  # By default the authorization headers will change after each request. The
-  # client is responsible for keeping track of the changing tokens. Change
-  # this to false to prevent the Authorization header from changing after
-  # each request.
-  # config.change_headers_on_each_request = true
+  # Makes sure the `DeviseTokenAuth` module doesn't check CSRF protection for the API
+  config.check_current_password_before_update = false
+
+  # Optionally extend token lifespan on each request
+  config.change_headers_on_each_request = true
 
   # Set token to expire in 2 weeks
   config.token_lifespan = 2.weeks
@@ -39,9 +39,6 @@ DeviseTokenAuth.setup do |config|
   # By default we will use callbacks for single omniauth.
   # It depends on fields like email, provider and uid.
   # config.default_callbacks = true
-
-  # Optionally extend token lifespan on each request
-  config.change_headers_on_each_request = true
 
   # Makes it possible to change the headers names
   # config.headers_names = {

@@ -1,6 +1,4 @@
 class Api::V1::DeniedAccessesController < Api::V1::BaseController
-  before_action :authenticate_user!
-
   # PATCH /api/v1/denied_accesses/toggle_visibility
   def toggle_visibility
     # Ensure the owner is attempting to toggle visibility

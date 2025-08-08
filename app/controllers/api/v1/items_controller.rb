@@ -1,5 +1,4 @@
 class Api::V1::ItemsController < Api::V1::BaseController
-  before_action :authenticate_user!
   load_and_authorize_resource
 
   # GET /api/v1/items

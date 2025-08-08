@@ -1,5 +1,4 @@
 class Api::V1::UserRolesController < Api::V1::BaseController
-  before_action :authenticate_user!
   load_and_authorize_resource class: "UserRole", only: [ :create, :update, :destroy ]
 
   # POST /api/v1/user_roles

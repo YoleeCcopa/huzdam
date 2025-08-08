@@ -1,11 +1,11 @@
+require_dependency 'object_permissions'  # This ensures the file is loaded.
+
 class Shelf < ApplicationRecord
-  belongs_to :user
-  belongs_to :area, optional: true
+  include ObjectPermissions
 
-  has_many :containers, as: :parent, dependent: :destroy
-  has_many :items, as: :parent, dependent: :destroy
-
-  validates :name, :description, presence: true
+  belongs_to :area
+  has_many :containers
+  has_many :items
 
   # All containers under this shelf (direct)
   def all_containers
