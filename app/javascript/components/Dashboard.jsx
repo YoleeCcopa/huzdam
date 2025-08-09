@@ -4,7 +4,6 @@ import { logout } from '../utils/auth';
 import { get, post, patch } from '../utils/api';
 import AreaForm from './areas/AreaForm';
 import AreaDisplay from './areas/AreaDisplay';
-import { getAuthHeaders, validateToken } from '../utils/auth';
 
 const Dashboard = () => {
   useAuthGuard(); // Redirects to /login if no auth token
@@ -18,7 +17,7 @@ const Dashboard = () => {
     const getAreas = async () => {
       try {
         const areasData = await get('/api/v1/areas');
-        setAreas(areasData);
+        setAreas(areasData.data);
       } catch (error) {
         setError('Failed to load areas.');
       } finally {
@@ -33,7 +32,7 @@ const Dashboard = () => {
   const handleCreateArea = async (areaData) => {
     try {
       const createdArea = await post('/api/v1/areas', { area: areaData });
-      setAreas([...areas, createdArea]);
+      setAreas([...areas, createdArea.data]);
     } catch (error) {
       setError('Failed to create area.');
     }
@@ -49,7 +48,7 @@ const Dashboard = () => {
       // Update only the field that was changed in the state
       setAreas((prevAreas) =>
         prevAreas.map((area) =>
-          area.id === areaId ? { ...area, [field]: newValue } : area
+          area.id === areaId ? { ...area, ...updatedArea.data } : area
         )
       );
     } catch (error) {
@@ -69,7 +68,7 @@ const Dashboard = () => {
       <AreaForm handleCreateArea={handleCreateArea} />
 
       {/* Display areas */}
-      <AreaDisplay data={areas} loading={loading} onUpdateArea={onUpdateArea} />
+      <AreaDisplay data={areas} loading={loading} onUpdateArea={onUpdateArea} setAreas={setAreas} />
     </div>
   );
 };

@@ -20,26 +20,24 @@ const apiRequest = async (url, method = 'GET', body = null) => {
   try {
     const response = await fetch(url, options);
 
-    // Check if response is OK
+    // Check if response is OK (status code 2xx)
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData?.message || 'API request failed');
+      return { status: 'error', data: errorData?.message || 'API request failed' };
     }
 
-    // Return the parsed response body
-    return await response.json();
+    // If successful, return the parsed response body
+    const data = await response.json();
+    return { status: 'success', data };
   } catch (error) {
     console.error('API Error:', error);
-    throw error; // Throw the error to be caught in the calling function
+    return { status: 'error', data: error.message || 'Something went wrong' };
   }
 };
 
 // GET request
 const get = async (url) => {
-  console.log("entered request")
-  let request = apiRequest(url, 'GET');
-  console.log(request)
-  return request;
+  return apiRequest(url, 'GET');
 };
 
 // POST request

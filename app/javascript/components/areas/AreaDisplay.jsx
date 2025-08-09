@@ -1,20 +1,71 @@
 import React, { useState } from 'react';
+import { get, del } from '../../utils/api';
 
-const AreaDisplay = ({ data, loading, onUpdateArea }) => {
-  const [editingArea, setEditingArea] = useState(null); // Track the area being edited
-  const [newValue, setNewValue] = useState('');
+// Parent Component (AreaDisplay)
+const AreaDisplay = ({ data, loading, onUpdateArea, setAreas }) => {
+  const [editingArea, setEditingArea] = useState(null); // To track the area being edited
+  const [newValues, setNewValues] = useState({ name: '', description: '' }); // Track new values for both fields
 
-  // Handle the button click to start editing the area name/description
+  /**
+   * Handle the edit button click
+   * @param {number} areaId - The ID of the area to edit
+   * @param {string} field - The field to edit ('name' or 'description')
+   */
   const handleEditClick = (areaId, field) => {
     setEditingArea({ id: areaId, field });
   };
 
-  // Handle submitting the updated value for the area
+  // Handle value changes in the input fields (name or description)
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewValues((prev) => ({ ...prev, [name]: value })); // Update only the field being edited
+  };
+
+  /**
+   * Handle saving the new value for the area
+   * @param {number} areaId - The ID of the area
+   */
   const handleSaveClick = async (areaId) => {
-    if (newValue.trim()) {
-      await onUpdateArea(areaId, editingArea.field, newValue); // Call parent function to update
-      setEditingArea(null); // Reset editing state
-      setNewValue(''); // Reset input field
+    // Ensure we only save non-empty values
+    const { name, description } = newValues;
+
+    if (name.trim() || description.trim()) {
+      try {
+        // Try to update the area with the new values
+        await onUpdateArea(areaId, 'name', name);
+        await onUpdateArea(areaId, 'description', description);
+
+        // Reset values
+        setEditingArea(null);
+        setNewValues({ name: '', description: '' });
+      } catch (error) {
+        console.error('Error saving area:', error);
+        alert('Failed to save area');
+      }
+    }
+  };
+
+  /**
+   * Handle the delete button click to delete an area
+   * @param {number} areaId - The ID of the area to delete
+   */
+  const handleDeleteClick = async (areaId) => {
+    const confirmed = window.confirm('Are you sure you want to delete this area?');
+
+    if (confirmed) {
+      try {
+        // Delete the area using the 'del' function from apiUtils
+        await del(`/api/v1/areas/${areaId}`);
+        
+        // Optionally, re-fetch the areas after deletion to get the latest state from the backend
+        const areasData = await get('/api/v1/areas');
+        setAreas(areasData.data); // Update the state with the fresh data
+
+        alert('Area deleted successfully');
+      } catch (error) {
+        console.error('Error deleting area:', error);
+        alert('Failed to delete area');
+      }
     }
   };
 
@@ -29,20 +80,27 @@ const AreaDisplay = ({ data, loading, onUpdateArea }) => {
           <ul>
             {data.map((area) => (
               <li key={area.id}>
-                {area.name}
-                <br />
-                {area.description}
-                <br />
+                <strong>Name:</strong> {area.name} <br />
+                <strong>Description:</strong> {area.description} <br />
                 <button onClick={() => handleEditClick(area.id, 'name')}>Change name</button>
                 <button onClick={() => handleEditClick(area.id, 'description')}>Change description</button>
-
+                <button onClick={() => handleDeleteClick(area.id)}>Delete</button>
+                
                 {editingArea && editingArea.id === area.id && (
                   <div>
                     <input
                       type="text"
-                      value={newValue}
-                      onChange={(e) => setNewValue(e.target.value)}
-                      placeholder={`New ${editingArea.field}`}
+                      name="name"
+                      value={newValues.name}
+                      onChange={handleInputChange}
+                      placeholder={`New name`}
+                    />
+                    <input
+                      type="text"
+                      name="description"
+                      value={newValues.description}
+                      onChange={handleInputChange}
+                      placeholder={`New description`}
                     />
                     <button onClick={() => handleSaveClick(area.id)}>Save</button>
                     <button onClick={() => setEditingArea(null)}>Cancel</button>
