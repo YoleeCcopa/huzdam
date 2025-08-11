@@ -69,6 +69,22 @@ const AreaDisplay = ({ data, loading, onUpdateArea, setAreas }) => {
     }
   };
 
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredAreas = data.filter(area =>
+    area.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const SearchBar = ({ searchTerm, setSearchTerm }) => (
+    <input
+      type="text"
+      placeholder="Search areas by name..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      style={{ marginBottom: '1rem', padding: '0.5rem', width: '100%' }}
+    />
+  );
+
   // Render areas and buttons for changing name/description
   return (
     <div>
@@ -77,8 +93,9 @@ const AreaDisplay = ({ data, loading, onUpdateArea, setAreas }) => {
       ) : (
         <div>
           <h2>Your Areas</h2>
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <ul>
-            {data.map((area) => (
+            {filteredAreas.map((area) => (
               <li key={area.id}>
                 <strong>Name:</strong> {area.name} <br />
                 <strong>Description:</strong> {area.description} <br />
