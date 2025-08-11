@@ -1,68 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import useAuthGuard from '../hooks/useAuthGuard';
-import { getAuthHeaders, logout } from '../utils/auth';
+import { logout } from '../utils/auth';
+import { get, post, patch } from '../utils/api';
+import AreaForm from './areas/AreaForm';
+import AreaDisplay from './areas/AreaDisplay';
 
 const Dashboard = () => {
   useAuthGuard(); // Redirects to /login if no auth token
 
   const [areas, setAreas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newAreaName, setNewAreaName] = useState('');
+  const [error, setError] = useState(null); // For handling errors
 
   // Fetch areas when the component mounts
   useEffect(() => {
     const getAreas = async () => {
-      const areas = await fetchAreas();
-      setAreas(areas);
-      setLoading(false);
+      try {
+        const areasData = await get('/api/v1/areas');
+        setAreas(areasData.data);
+      } catch (error) {
+        setError('Failed to load areas.');
+      } finally {
+        setLoading(false); // Set loading to false once the fetch is complete
+      }
     };
 
     getAreas();
   }, []);
-  
-  // Utility function for making API calls
-  const fetchAreas = async () => {
-    const response = await fetch('/api/v1/areas', {
-      method: 'GET',
-      headers: getAuthHeaders(),
-    });
-    const data = await response.json();
-    return data;
-  };
-
-  const createArea = async (newArea) => {
-    const response = await fetch('/api/v1/areas', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeaders(),
-      },
-      body: JSON.stringify({ area: newArea }),
-    });
-    const data = await response.json();
-    if (response.ok) {
-      return data;
-    } else {
-      console.error('Error creating area:', data.errors);
-    }
-  };
-
-  const updateObject = async (objectType, objectId, data) => {
-    try {
-      const response = await axios.patch(`/api/${objectType}s/${objectId}`, data);
-      console.log('Object updated:', response.data);
-    } catch (error) {
-      console.error('Error updating object:', error.response.data);
-    }
-  };
 
   // Handle creating a new area
-  const handleCreateArea = async () => {
-    if (newAreaName.trim()) {
-      const newArea = { name: newAreaName, description: '' };
-      const createdArea = await createArea(newArea);
-      setAreas([...areas, createdArea]);
-      setNewAreaName('');
+  const handleCreateArea = async (areaData) => {
+    try {
+      const createdArea = await post('/api/v1/areas', { area: areaData });
+      setAreas([...areas, createdArea.data]);
+    } catch (error) {
+      setError('Failed to create area.');
+    }
+  };
+
+  // API call to update the area (name or description)
+  const onUpdateArea = async (areaId, field, newValue) => {
+    // const updatedArea = { [field]: newValue }; // Update only the field that was changed
+    try {
+      // Call the patch function from the apiUtils
+      const updatedArea = await patch(`/api/v1/areas/${areaId}`, { [field]: newValue });
+
+      // Update only the field that was changed in the state
+      setAreas((prevAreas) =>
+        prevAreas.map((area) =>
+          area.id === areaId ? { ...area, ...updatedArea.data } : area
+        )
+      );
+    } catch (error) {
+      console.error('Error updating area:', error);
     }
   };
 
@@ -71,30 +61,14 @@ const Dashboard = () => {
       <h1>Welcome to your Dashboard</h1>
       <button onClick={logout}>Logout</button>
 
-      {/* Create new area */}
-      <div>
-        <input
-          type="text"
-          value={newAreaName}
-          onChange={(e) => setNewAreaName(e.target.value)}
-          placeholder="Enter new area name"
-        />
-        <button onClick={handleCreateArea}>Create New Area</button>
-      </div>
+      {/* Error message */}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      {/* Create new area form */}
+      <AreaForm handleCreateArea={handleCreateArea} />
 
       {/* Display areas */}
-      {loading ? (
-        <p>Loading areas...</p>
-      ) : (
-        <div>
-          <h2>Your Areas</h2>
-          <ul>
-            {areas.map((area) => (
-              <li key={area.id}>{area.name}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <AreaDisplay data={areas} loading={loading} onUpdateArea={onUpdateArea} setAreas={setAreas} />
     </div>
   );
 };
