@@ -25,7 +25,7 @@ const AreaForm = ({ handleCreateArea }) => {
 
   return (
     <div>
-      <h2>Create New Area</h2>
+      <h2>Form</h2>
       {/* Error message */}
       {error && <p style={{ color: 'red' }}>{error}</p>}
 

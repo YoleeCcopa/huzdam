@@ -13,6 +13,7 @@ Rails.application.routes.draw do
       end
       resources :users
       resources :areas, only: [ :index, :create, :show, :update, :destroy ]
+      resources :shelves, only: [ :index, :create, :show, :update, :destroy ]
     end
   end
 
