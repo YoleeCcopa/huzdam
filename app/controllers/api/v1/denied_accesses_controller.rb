@@ -1,28 +1,23 @@
 class Api::V1::DeniedAccessesController < Api::V1::BaseController
   # PATCH /api/v1/denied_accesses/toggle_visibility
   def toggle_visibility
-    # Ensure the owner is attempting to toggle visibility
     object = find_object(params[:object_type], params[:object_id])
-    return render json: { error: "Object not found" }, status: :not_found unless object
+    return render_not_found("Object") unless object
 
-    if object.user_id != current_user.id
-      return render json: { error: "Not authorized to manage visibility for this object" }, status: :forbidden
-    end
+    return render_forbidden("Not authorized to manage visibility") unless object.user_id == current_user.id
 
-    # Check if DeniedAccess exists
     denied_access = DeniedAccess.find_by(user_id: params[:user_id], object: object)
 
     if denied_access
-      # Toggle the visibility
       denied_access.update(hidden: !denied_access.hidden)
-      render json: { message: "Visibility toggled", hidden: denied_access.hidden }, status: :ok
+      render_success(data: { hidden: denied_access.hidden }, message: "Visibility toggled")
     else
-      # Create a new DeniedAccess with hidden flag set to true
-      denied_access = DeniedAccess.create(user_id: params[:user_id], object: object, hidden: true)
+      denied_access = DeniedAccess.new(user_id: params[:user_id], object: object, hidden: true)
+
       if denied_access.save
-        render json: { message: "Object visibility hidden", hidden: true }, status: :created
+        render_success(data: { hidden: true }, message: "Object visibility hidden", status: :created)
       else
-        render json: { errors: denied_access.errors.full_messages }, status: :unprocessable_entity
+        render_error(message: "Failed to hide object", errors: denied_access.errors.full_messages, fields: denied_access.errors.to_hash)
       end
     end
   end
@@ -31,14 +26,10 @@ class Api::V1::DeniedAccessesController < Api::V1::BaseController
 
   def find_object(object_type, object_id)
     case object_type
-    when "Shelf"
-      Shelf.find_by(id: object_id)
-    when "Container"
-      Container.find_by(id: object_id)
-    when "Item"
-      Item.find_by(id: object_id)
-    else
-      nil
+    when "Shelf" then Shelf.find_by(id: object_id)
+    when "Container" then Container.find_by(id: object_id)
+    when "Item" then Item.find_by(id: object_id)
+    else nil
     end
   end
 end

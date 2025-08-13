@@ -4,34 +4,32 @@ import { getAuthHeaders } from './auth';
 const apiRequest = async (url, method = 'GET', body = null) => {
   const headers = {
     'Content-Type': 'application/json',
-    ...getAuthHeaders(), // Add any additional headers (like auth tokens)
+    ...getAuthHeaders(),
   };
 
-  const options = {
-    method,
-    headers,
-  };
-
-  // Add the body if it's a POST or PUT request
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
+  const options = { method, headers };
+  if (body) options.body = JSON.stringify(body);
 
   try {
     const response = await fetch(url, options);
 
-    // Check if response is OK (status code 2xx)
     if (!response.ok) {
       const errorData = await response.json();
-      return { status: 'error', data: errorData?.message || 'API request failed' };
+      return { status: 'error', message: errorData?.message || 'API request failed', errors: errorData?.errors };
     }
 
-    // If successful, return the parsed response body
-    const data = await response.json();
-    return { status: 'success', data };
+    const json = await response.json();
+
+    // Unwrap here:
+    if (json.success) {
+      return { status: 'success', data: json.data, message: json.message };
+    } else {
+      // Backend may send success: false with error info
+      return { status: 'error', message: json.message, errors: json.errors };
+    }
   } catch (error) {
     console.error('API Error:', error);
-    return { status: 'error', data: error.message || 'Something went wrong' };
+    return { status: 'error', message: error.message || 'Something went wrong' };
   }
 };
 
