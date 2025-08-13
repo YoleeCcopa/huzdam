@@ -1,5 +1,10 @@
-class PermissonsTables < ActiveRecord::Migration[8.0]
+class DbStructure < ActiveRecord::Migration[8.0]
   def change
+    drop_table :tag_properties
+    drop_table :item_properties
+    drop_table :properties
+    drop_table :item_tags
+    drop_table :tags
     drop_table :items
     drop_table :containers
     drop_table :shelves
@@ -15,35 +20,24 @@ class PermissonsTables < ActiveRecord::Migration[8.0]
       ## Required
       t.string :provider, null: false, default: "email"
       t.string :uid, null: false, default: ""
-
       ## Database authenticatable
       t.string :encrypted_password, null: false, default: ""
-
       ## Recoverable
       t.string   :reset_password_token
       t.datetime :reset_password_sent_at
       t.boolean  :allow_password_change, default: false
-
       ## Rememberable
       t.datetime :remember_created_at
-
       ## Confirmable
       t.string   :confirmation_token
       t.datetime :confirmed_at
       t.datetime :confirmation_sent_at
       t.string   :unconfirmed_email # Only if using reconfirmable
-
-      ## Lockable
-      # t.integer  :failed_attempts, :default => 0, :null => false # Only if lock strategy is :failed_attempts
-      # t.string   :unlock_token # Only if unlock strategy is :email or :both
-      # t.datetime :locked_at
-
       ## User Info
       t.string :user_name
       t.string :display_name
       t.string :email
       t.string :image
-
       ## Tokens
       t.json :tokens
 
@@ -55,7 +49,6 @@ class PermissonsTables < ActiveRecord::Migration[8.0]
     add_index :users, [ :uid, :provider ],     unique: true
     add_index :users, :reset_password_token, unique: true
     add_index :users, :confirmation_token,   unique: true
-    # add_index :users, :unlock_token,         unique: true
 
     # Optional: mark existing users as confirmed
     User.update_all(confirmed_at: Time.current)
@@ -110,7 +103,10 @@ class PermissonsTables < ActiveRecord::Migration[8.0]
 
     create_table :shelves do |t|
       t.references :user, null: false, foreign_key: true
-      t.references :area, null: false, foreign_key: true
+
+      # Parent can be a shelf or another container
+      t.references :parent, polymorphic: true
+
       t.string :name, null: false
       t.text :description
       t.text :template
@@ -122,7 +118,7 @@ class PermissonsTables < ActiveRecord::Migration[8.0]
       t.references :user, null: false, foreign_key: true
 
       # Parent can be a shelf or another container
-      t.references :parent, polymorphic: true, null: false
+      t.references :parent, polymorphic: true
 
       t.string :name, null: false
       t.text :description
@@ -135,11 +131,59 @@ class PermissonsTables < ActiveRecord::Migration[8.0]
       t.references :user, null: false, foreign_key: true
 
       # Parent can be a shelf or a container
-      t.references :parent, polymorphic: true, null: false
+      t.references :parent, polymorphic: true
 
       t.string :name, null: false
       t.string :custom_label
       t.text :description
+      t.boolean :is_stackable, default: false
+      t.integer :quantity, default: 1
+      t.decimal :buy_price, precision: 10, scale: 2
+      t.decimal :sell_value, precision: 10, scale: 2
+
+      t.timestamps
+    end
+
+    create_table :tags do |t|
+      t.references :user, null: false, foreign_key: true
+      t.references :parent, foreign_key: { to_table: :tags }, index: true
+
+      t.string :name, null: false
+      t.string :custom_label
+      t.text :description
+
+      t.timestamps
+    end
+
+    create_table :item_tags do |t|
+      t.references :item, null: false, foreign_key: true
+      t.references :tag, null: false, foreign_key: true
+
+      t.timestamps
+    end
+
+    create_table :properties do |t|
+      t.references :user, null: false, foreign_key: true
+
+      t.string :name, null: false
+      t.string :value_type, null: false  # "string", "number", "boolean", etc.
+
+      t.timestamps
+    end
+
+    create_table :item_properties do |t|
+      t.references :item, null: false, foreign_key: true
+      t.references :property, null: false, foreign_key: true
+
+      # This is the actual value of the property for the item
+      t.text :value, null: false
+
+      t.timestamps
+    end
+
+    create_table :tag_properties do |t| # Tag-scoped metadata
+      t.references :tag, null: false, foreign_key: true
+      t.references :property, null: false, foreign_key: true
 
       t.timestamps
     end

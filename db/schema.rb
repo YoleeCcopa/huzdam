@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_06_040845) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_12_220628) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,8 +25,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_040845) do
 
   create_table "containers", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.string "parent_type", null: false
-    t.bigint "parent_id", null: false
+    t.string "parent_type"
+    t.bigint "parent_id"
     t.string "name", null: false
     t.text "description"
     t.text "template"
@@ -48,13 +48,36 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_040845) do
     t.index ["user_id"], name: "index_denied_accesses_on_user_id"
   end
 
+  create_table "item_properties", force: :cascade do |t|
+    t.bigint "item_id", null: false
+    t.bigint "property_id", null: false
+    t.text "value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["item_id"], name: "index_item_properties_on_item_id"
+    t.index ["property_id"], name: "index_item_properties_on_property_id"
+  end
+
+  create_table "item_tags", force: :cascade do |t|
+    t.bigint "item_id", null: false
+    t.bigint "tag_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["item_id"], name: "index_item_tags_on_item_id"
+    t.index ["tag_id"], name: "index_item_tags_on_tag_id"
+  end
+
   create_table "items", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.string "parent_type", null: false
-    t.bigint "parent_id", null: false
+    t.string "parent_type"
+    t.bigint "parent_id"
     t.string "name", null: false
     t.string "custom_label"
     t.text "description"
+    t.boolean "is_stackable", default: false
+    t.integer "quantity", default: 1
+    t.decimal "buy_price", precision: 10, scale: 2
+    t.decimal "sell_value", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["parent_type", "parent_id"], name: "index_items_on_parent"
@@ -75,6 +98,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_040845) do
     t.index ["role_id"], name: "index_permissions_roles_on_role_id"
   end
 
+  create_table "properties", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "value_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_properties_on_user_id"
+  end
+
   create_table "roles", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
@@ -84,14 +116,36 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_040845) do
 
   create_table "shelves", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "area_id", null: false
+    t.string "parent_type"
+    t.bigint "parent_id"
     t.string "name", null: false
     t.text "description"
     t.text "template"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["area_id"], name: "index_shelves_on_area_id"
+    t.index ["parent_type", "parent_id"], name: "index_shelves_on_parent"
     t.index ["user_id"], name: "index_shelves_on_user_id"
+  end
+
+  create_table "tag_properties", force: :cascade do |t|
+    t.bigint "tag_id", null: false
+    t.bigint "property_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["property_id"], name: "index_tag_properties_on_property_id"
+    t.index ["tag_id"], name: "index_tag_properties_on_tag_id"
+  end
+
+  create_table "tags", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "parent_id"
+    t.string "name", null: false
+    t.string "custom_label"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_id"], name: "index_tags_on_parent_id"
+    t.index ["user_id"], name: "index_tags_on_user_id"
   end
 
   create_table "user_roles", force: :cascade do |t|
@@ -138,9 +192,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_040845) do
   add_foreign_key "areas", "users"
   add_foreign_key "containers", "users"
   add_foreign_key "denied_accesses", "users"
+  add_foreign_key "item_properties", "items"
+  add_foreign_key "item_properties", "properties"
+  add_foreign_key "item_tags", "items"
+  add_foreign_key "item_tags", "tags"
   add_foreign_key "items", "users"
-  add_foreign_key "shelves", "areas"
+  add_foreign_key "properties", "users"
   add_foreign_key "shelves", "users"
+  add_foreign_key "tag_properties", "properties"
+  add_foreign_key "tag_properties", "tags"
+  add_foreign_key "tags", "tags", column: "parent_id"
+  add_foreign_key "tags", "users"
   add_foreign_key "user_roles", "roles"
   add_foreign_key "user_roles", "users"
   add_foreign_key "users", "roles"

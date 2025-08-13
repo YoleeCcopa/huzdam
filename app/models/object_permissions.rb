@@ -22,6 +22,11 @@ module ObjectPermissions
 
     # Check if the user has permission (could be based on invitee role)
     def has_permission?(user)
+      if user_roles.exists?(user_id: user.id)
+        Rails.logger.debug("User #{user.id} has permission for this object.")
+      else
+        Rails.logger.debug("User #{user.id} does not have permission for this object.")
+      end
       user_roles.exists?(user_id: user.id)
     end
   end

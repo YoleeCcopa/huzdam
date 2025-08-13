@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import SignupForm from './SignupForm';
 import LoginForm from './LoginForm';
 import Dashboard from './Dashboard';
+import Shelves from './Shelves';
 import useAuthGuard from '../hooks/useAuthGuard';
 
 const ProtectedRoute = ({ children }) => {
@@ -21,6 +22,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/shelves"
+          element={
+            <ProtectedRoute>
+              <Shelves />
             </ProtectedRoute>
           }
         />
