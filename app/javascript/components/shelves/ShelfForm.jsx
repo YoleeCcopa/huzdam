@@ -1,30 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { get, post, patch } from '../../utils/api';
+import React, { useState } from 'react';
 
-const ShelfForm = ({ handleCreateShelf }) => {
+const ShelfForm = ({ handleCreateShelf, areas }) => {
   const [area, setArea] = useState('');
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [newTemplate, setNewTemplate] = useState('');
   const [error, setError] = useState(null);
-  const [areas, setAreas] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch areas when the component mounts
-  useEffect(() => {
-    const getAreas = async () => {
-      try {
-        const areasData = await get('/api/v1/areas');
-        setAreas(areasData.data);
-      } catch (error) {
-        setError('Failed to load areas.');
-      } finally {
-        setLoading(false); // Set loading to false once the fetch is complete
-      }
-    };
-
-    getAreas();
-  }, []);
 
   // Handle form submission
   const handleFormSubmit = (event) => {

@@ -1,67 +1,80 @@
 import React, { useState } from 'react';
 import { get, del } from '../../utils/api';
+import ShelfEditForm from './ShelfEditForm';
 
-// Parent Component (AreaDisplay)
-const ShelfDisplay = ({ data, loading, onUpdateShelf, setShelves }) => {
-  const [editingShelf, setEditingShelf] = useState(null); // To track the area being edited
-  const [newValues, setNewValues] = useState({ name: '', description: '', template: '' }); // Track new values for both fields
+const ShelfDisplay = ({ data, loading, onUpdateShelf, setShelves, areas }) => {
+  const [editingShelf, setEditingShelf] = useState(null);
+  const [newValues, setNewValues] = useState(clearFormValues());
 
-  /**
-   * Handle the edit button click
-   * @param {number} shelfId - The ID of the area to edit
-   * @param {string} field - The field to edit ('name' or 'description')
-   */
-  const handleEditClick = (shelfId, field) => {
-    setEditingShelf({ id: shelfId, field });
+  function clearFormValues() {
+    return {
+      name: '',
+      description: '',
+      template: '',
+      parent_id: '',
+      parent_type: 'Area'
+    };
+  }
+
+  const handleEditClick = (shelf) => {
+    setEditingShelf(shelf);
+    setNewValues({
+      name: shelf.name || '',
+      description: shelf.description || '',
+      template: shelf.template || '',
+      parent_id: shelf.parent_id || '',
+      parent_type: shelf.parent_type || 'Area'
+    });
   };
 
-  // Handle value changes in the input fields (name or description)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewValues((prev) => ({ ...prev, [name]: value })); // Update only the field being edited
+    setNewValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  /**
-   * Handle saving the new value for the area
-   * @param {number} shelfId - The ID of the area
-   */
-  const handleSaveClick = async (shelfId) => {
-    // Ensure we only save non-empty values
-    const { name, description, template } = newValues;
+  const handleSaveClick = async () => {
+    if (!editingShelf) return;
 
-    if (name.trim() || description.trim() || template.trim()) {
-      try {
-        // Try to update the area with the new values
-        await onUpdateShelf(shelfId, 'name', name);
-        await onUpdateShelf(shelfId, 'description', description);
-        await onUpdateShelf(shelfId, 'template', template);
+    const payload = {};
 
-        // Reset values
-        setEditingShelf(null);
-        setNewValues({ name: '', description: '', template: '' });
-      } catch (error) {
-        console.error('Error saving shelf:', error);
-        alert('Failed to save shelf');
+    for (const key in newValues) {
+      if (
+        newValues[key] !== undefined &&
+        newValues[key] !== '' &&
+        newValues[key] !== editingShelf[key]
+      ) {
+        payload[key] = newValues[key];
       }
+    }
+
+    if (Object.keys(payload).length === 0) {
+      alert('No changes made');
+      return;
+    }
+
+    try {
+      await onUpdateShelf(editingShelf.id, payload);
+
+      setEditingShelf(null);
+      setNewValues(clearFormValues());
+    } catch (error) {
+      console.error('Error saving shelf:', error);
+      alert('Failed to save shelf');
     }
   };
 
-  /**
-   * Handle the delete button click to delete an area
-   * @param {number} shelfId - The ID of the area to delete
-   */
+  const handleCancelClick = () => {
+    setEditingShelf(null);
+    setNewValues(clearFormValues());
+  };
+
   const handleDeleteClick = async (shelfId) => {
     const confirmed = window.confirm('Are you sure you want to delete this shelf?');
-
     if (confirmed) {
       try {
-        // Delete the area using the 'del' function from apiUtils
         await del(`/api/v1/shelves/${shelfId}`);
-        
-        // Optionally, re-fetch the Shelves after deletion to get the latest state from the backend
         const shelvesData = await get('/api/v1/shelves');
-        setShelves(shelvesData.data); // Update the state with the fresh data
-
+        setShelves(shelvesData.data);
         alert('Shelf deleted successfully');
       } catch (error) {
         console.error('Error deleting shelf:', error);
@@ -70,7 +83,22 @@ const ShelfDisplay = ({ data, loading, onUpdateShelf, setShelves }) => {
     }
   };
 
-  // Render Shelves and buttons for changing name/description
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const filteredShelves = data.filter(shelf =>
+    shelf.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const SearchBar = ({ searchTerm, setSearchTerm }) => (
+    <input
+      type="text"
+      placeholder="Search areas by name..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      style={{ marginBottom: '1rem', padding: '0.5rem', width: '100%' }}
+    />
+  );
+
   return (
     <div>
       {loading ? (
@@ -78,51 +106,25 @@ const ShelfDisplay = ({ data, loading, onUpdateShelf, setShelves }) => {
       ) : (
         <div>
           <h2>Your Shelves</h2>
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <ul>
-            {data.map((shelf) => (
+            {filteredShelves.map((shelf) => (
               <li key={shelf.id}>
-                <strong>Name:</strong> {shelf.name} <br />
-                <strong>Description:</strong> {shelf.description} <br />
-                <strong>Template:</strong> {shelf.template} <br />
-                <button onClick={() => handleEditClick(shelf.id, 'area')}>Change area</button>
-                <button onClick={() => handleEditClick(shelf.id, 'name')}>Change name</button>
-                <button onClick={() => handleEditClick(shelf.id, 'description')}>Change description</button>
-                <button onClick={() => handleEditClick(shelf.id, 'template')}>Change template</button>
+                <strong>Name:</strong> {shelf.name}<br />
+                <strong>Description:</strong> {shelf.description}<br />
+                <strong>Template:</strong> {shelf.template}<br />
+                <strong>Area ID:</strong> {shelf.parent_id}<br />
+                <button onClick={() => handleEditClick(shelf)}>Edit</button>
                 <button onClick={() => handleDeleteClick(shelf.id)}>Delete</button>
-                
-                {editingShelf && editingShelf.id === shelf.id && (
-                  <div>
-                    <input
-                      type="text"
-                      name="area"
-                      value={area.area}
-                      onChange={handleInputChange}
-                      placeholder={`Area`}
-                    />
-                    <input
-                      type="text"
-                      name="name"
-                      value={newValues.name}
-                      onChange={handleInputChange}
-                      placeholder={`New name`}
-                    />
-                    <input
-                      type="text"
-                      name="description"
-                      value={newValues.description}
-                      onChange={handleInputChange}
-                      placeholder={`New description`}
-                    />
-                    <input
-                      type="text"
-                      name="template"
-                      value={newValues.template}
-                      onChange={handleInputChange}
-                      placeholder={`New template`}
-                    />
-                    <button onClick={() => handleSaveClick(shelf.id)}>Save</button>
-                    <button onClick={() => setEditingShelf(null)}>Cancel</button>
-                  </div>
+
+                {editingShelf?.id === shelf.id && (
+                  <ShelfEditForm
+                    newValues={newValues}
+                    onChange={handleInputChange}
+                    onSave={handleSaveClick}
+                    onCancel={handleCancelClick}
+                    areas={areas}
+                  />
                 )}
               </li>
             ))}

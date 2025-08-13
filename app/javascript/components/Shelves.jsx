@@ -11,6 +11,7 @@ const Shelves = () => {
   const [shelves, setShelves] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); // For handling errors
+  const [areas, setAreas] = useState([]);
 
   // Fetch areas when the component mounts
   useEffect(() => {
@@ -26,6 +27,19 @@ const Shelves = () => {
     };
 
     getShelves();
+
+    const getAreas = async () => {
+      try {
+        const areasData = await get('/api/v1/areas');
+        setAreas(areasData.data);
+      } catch (error) {
+        setError('Failed to load areas.');
+      } finally {
+        setLoading(false); // Set loading to false once the fetch is complete
+      }
+    };
+
+    getAreas();
   }, []);
 
   // Handle creating a new area
@@ -39,13 +53,10 @@ const Shelves = () => {
   };
 
   // API call to update the area (name or description)
-  const onUpdateShelf = async (shelfId, field, newValue) => {
-    // const updatedArea = { [field]: newValue }; // Update only the field that was changed
+  const onUpdateShelf = async (shelfId, updatedFields) => {
     try {
-      // Call the patch function from the apiUtils
-      const updatedShelf = await patch(`/api/v1/shelves/${shelfId}`, { [field]: newValue });
+      const updatedShelf = await patch(`/api/v1/shelves/${shelfId}`, { shelf: updatedFields });
 
-      // Update only the field that was changed in the state
       setShelves((prevShelves) =>
         prevShelves.map((shelf) =>
           shelf.id === shelfId ? { ...shelf, ...updatedShelf.data } : shelf
@@ -53,6 +64,7 @@ const Shelves = () => {
       );
     } catch (error) {
       console.error('Error updating shelf:', error);
+      alert('Failed to update shelf');
     }
   };
 
@@ -65,10 +77,10 @@ const Shelves = () => {
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {/* Create new area form */}
-      <ShelfForm handleCreateShelf={handleCreateShelf} />
+      <ShelfForm handleCreateShelf={handleCreateShelf} areas={areas} />
 
       {/* Display areas */}
-      <ShelfDisplay data={shelves} loading={loading} onUpdateShelf={onUpdateShelf} setShelves={setShelves} />
+      <ShelfDisplay data={shelves} loading={loading} onUpdateShelf={onUpdateShelf} setShelves={setShelves} areas={areas} />
     </div>
   );
 };

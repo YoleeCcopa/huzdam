@@ -1,59 +1,67 @@
 class Api::V1::ShelvesController < Api::V1::BaseController
-  before_action only: [ :show, :update, :destroy ]
-  # load_and_authorize_resource
+  before_action :set_shelf, only: [:show, :update, :destroy]
 
   # GET /api/v1/shelves
   def index
-    Rails.logger.debug("Current User: #{current_user.inspect}")
-    @shelves = current_user.shelves
-    render json: @shelves
+    render json: current_user.shelves
   end
 
   # GET /api/v1/shelves/:id
   def show
-    Rails.logger.debug("Current User: #{current_user.inspect}")
-    render json: @shelves
+    render json: @shelf
   end
 
   # POST /api/v1/shelves
   def create
-    @shelf = Shelf.new(shelf_params)
-    @shelf.user = current_user
-    @shelf.parent = parent  # Sets both parent_id and parent_type
+    @shelf = current_user.shelves.new(shelf_params)
 
-      Rails.logger.debug("Current parent: #{parent}")
+    # Resolve polymorphic parent
+    parent_type = shelf_params[:parent_type]
+    parent_id = shelf_params[:parent_id]
+
+    if parent_type.present? && parent_id.present?
+      parent = resolve_parent(parent_type, parent_id)
+      return unless parent
+      @shelf.parent = parent
+    end
+
+    Rails.logger.debug("Attempting to save shelf: #{@shelf.attributes}")
+
     if @shelf.save
       render json: @shelf, status: :created
     else
-      Rails.logger.debug("Shelf save failed: #{@shelf.errors.full_messages}")
-      render json: @shelf.errors.full_messages, status: :unprocessable_entity
+      Rails.logger.warn("Shelf creation failed: #{@shelf.errors.full_messages}")
+      render json: {
+        message: "Shelf creation failed.",
+        errors: @shelf.errors.full_messages,
+        fields: @shelf.errors.to_hash
+      }, status: :unprocessable_entity
     end
   end
 
   # PATCH /api/v1/shelves/:id
   def update
     unless @shelf.editable_by?(current_user)
-      render json: { error: "You are not authorized to edit this shelf" }, status: :forbidden
-      return
+      render json: { error: "You are not authorized to edit this shelf" }, status: :forbidden and return
     end
 
-    # If the parent area is being updated, set the parent id and type
-    @shelf.parent = @area
-    @shelf.parent_id = @area.id
-    @shelf.parent_type = "Area"  # Ensure parent_type is correctly set
+    if parent_params_provided?
+      parent = resolve_parent(params[:shelf][:parent_type], params[:shelf][:parent_id])
+      return unless parent
+      @shelf.parent = parent
+    end
 
     if @shelf.update(shelf_params)
       render json: @shelf, status: :ok
     else
-      render json: @shelf.errors, status: :unprocessable_entity
+      render json: { errors: @shelf.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   # DELETE /api/v1/shelves/:id
   def destroy
     unless @shelf.deletable_by?(current_user)
-      render json: { error: "You are not authorized to delete this shelf" }, status: :forbidden
-      return
+      render json: { error: "You are not authorized to delete this shelf" }, status: :forbidden and return
     end
 
     @shelf.destroy
@@ -62,20 +70,30 @@ class Api::V1::ShelvesController < Api::V1::BaseController
 
   private
 
-  def parent
-    allowed_types = %w[Area Room]  # <- add your real parentable models here
-    type = params[:shelf][:parent_type]
-
-    unless allowed_types.include?(type)
-      render json: { error: "Invalid parent type" }, status: :unprocessable_entity and return
-    end
-
-    type.constantize.find(params[:shelf][:parent_id])
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: "Parent not found" }, status: :not_found
+  def set_shelf
+    @shelf = Shelf.find_by(id: params[:id])
+    render json: { error: "Shelf not found" }, status: :not_found unless @shelf
   end
 
   def shelf_params
     params.require(:shelf).permit(:name, :description, :template, :parent_id, :parent_type)
+  end
+
+  def parent_params_provided?
+    params.dig(:shelf, :parent_type).present? && params.dig(:shelf, :parent_id).present?
+  end
+
+  def resolve_parent(type, id)
+    allowed_types = %w[Area]
+    result = ResolvePolymorphicParent.call(type: type, id: id, allowed_types: allowed_types)
+
+    unless result.success?
+      Rails.logger.warn("Parent resolution failed: #{result.error}")
+      render json: { error: result.error }, status: :unprocessable_entity
+      return nil
+    end
+
+    Rails.logger.debug("Resolved parent: #{result.parent.class.name}##{result.parent.id}")
+    result.parent
   end
 end
