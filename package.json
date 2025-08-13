@@ -34,7 +34,7 @@
     "shakapacker": "8.3.0",
     "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.14",
-    "webpack": "^5.101.0",
+    "webpack": "^5.101.1",
     "webpack-assets-manifest": "^5.2.1",
     "webpack-cli": "^4.10.0",
     "webpack-merge": "^5.10.0"
