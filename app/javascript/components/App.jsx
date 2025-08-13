@@ -33,6 +33,14 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/containers"
+          element={
+            <ProtectedRoute>
+              <Containers />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
