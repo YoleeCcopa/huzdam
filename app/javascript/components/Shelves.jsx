@@ -77,7 +77,7 @@ const Shelves = () => {
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {/* Create new area form */}
-      <ShelfForm handleCreateShelf={handleCreateShelf} areas={areas} />
+      <ShelfForm onSubmit={handleCreateShelf} areas={areas} />
 
       {/* Display areas */}
       <ShelfDisplay data={shelves} loading={loading} onUpdateShelf={onUpdateShelf} setShelves={setShelves} areas={areas} />
