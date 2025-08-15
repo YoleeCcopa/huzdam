@@ -3,7 +3,10 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      mount_devise_token_auth_for "User", at: "auth"  # Handles authentication routes
+      mount_devise_token_auth_for "User", at: "auth", controllers: {
+        registrations: "api/v1/auth/registrations",
+        sessions: "api/v1/auth/sessions"
+      }
 
       resources :user_roles, only: [ :create, :update, :destroy ]
       resources :denied_accesses, only: [] do
@@ -19,5 +22,5 @@ Rails.application.routes.draw do
   end
 
   # Let React Router handle all frontend routes
-  get "*path", to: "home#index", constraints: ->(req) { !req.xhr? && req.format.html? }
+  get "*path", to: "home#index", constraints: ->(req) { !req.xhr? && req.format.html? && !req.path.starts_with?("/api") }
 end

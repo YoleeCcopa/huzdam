@@ -1,4 +1,4 @@
-class DbStructure < ActiveRecord::Migration[8.0]
+class UpdateSecurity < ActiveRecord::Migration[8.0]
   def change
     drop_table :tag_properties
     drop_table :item_properties
@@ -34,9 +34,9 @@ class DbStructure < ActiveRecord::Migration[8.0]
       t.datetime :confirmation_sent_at
       t.string   :unconfirmed_email # Only if using reconfirmable
       ## User Info
-      t.string :user_name
+      t.string :user_name, null: false
       t.string :display_name
-      t.string :email
+      t.string :email, null: false
       t.string :image
       ## Tokens
       t.json :tokens
@@ -67,8 +67,8 @@ class DbStructure < ActiveRecord::Migration[8.0]
     end
 
     create_table :permissions_roles, id: false do |t|
-      t.belongs_to :role
-      t.belongs_to :permission
+      t.belongs_to :role, null: false
+      t.belongs_to :permission, null: false
     end
 
     add_reference :users, :role, foreign_key: true
@@ -149,7 +149,6 @@ class DbStructure < ActiveRecord::Migration[8.0]
       t.references :parent, foreign_key: { to_table: :tags }, index: true
 
       t.string :name, null: false
-      t.string :custom_label
       t.text :description
 
       t.timestamps

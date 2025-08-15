@@ -1,5 +1,5 @@
 class Api::V1::UserRolesController < Api::V1::BaseController
-  load_and_authorize_resource class: "UserRole", only: [:create, :update, :destroy]
+  load_and_authorize_resource class: "UserRole", only: [ :create, :update, :destroy ]
 
   # POST /api/v1/user_roles
   def create
@@ -45,7 +45,7 @@ class Api::V1::UserRolesController < Api::V1::BaseController
   end
 
   def update_denied_access(object, hidden)
-    return unless [true, false].include?(hidden)
+    return unless [ true, false ].include?(hidden)
 
     if hidden
       DeniedAccess.find_or_create_by(user: @user_role.user, object: object)
