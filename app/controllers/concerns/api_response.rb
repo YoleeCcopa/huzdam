@@ -49,6 +49,6 @@ module ApiResponse
   # Normalize attribute + message into a snake_case code like :email_taken
   def normalize_error_code(attribute, message)
     key = "#{attribute}_#{message}".downcase
-    key.gsub(/[^a-z0-9]+/, '_').gsub(/_+$/, '').to_sym
+    key.gsub(/[^a-z0-9]+/, "_").gsub(/_+$/, "").to_sym
   end
 end

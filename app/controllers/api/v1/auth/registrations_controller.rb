@@ -8,7 +8,7 @@ class Api::V1::Auth::RegistrationsController < DeviseTokenAuth::RegistrationsCon
       # yield resource if block_given?
 
       render_success(
-        data: resource.as_json(only: [:id, :email, :user_name, :display_name]),
+        data: resource.as_json(only: [ :id, :email, :user_name, :display_name ]),
         message: "User created successfully",
         status: :created
       )

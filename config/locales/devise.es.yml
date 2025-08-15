@@ -1,0 +1,8 @@
+es:
+  devise:
+    mailer:
+      confirmation_instructions:
+        subject: "¡Bienvenido a YourApp!"
+        greeting: "Hola %{name},"
+        instruction: "Por favor confirma tu cuenta haciendo clic en el botón de abajo:"
+        cta: "Confirmar mi cuenta"

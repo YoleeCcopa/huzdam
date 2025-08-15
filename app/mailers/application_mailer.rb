@@ -1,6 +1,6 @@
 class ApplicationMailer < Devise::Mailer
-  default from: 'no-reply@yourdomain.com'
-  layout 'mailer_custom'
+  default from: "no-reply@yourdomain.com"
+  layout "mailer_custom"
 
   def confirmation_instructions(record, token, opts = {})
     super
