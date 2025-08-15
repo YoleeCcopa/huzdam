@@ -6,6 +6,8 @@ class Api::V1::Auth::RegistrationsController < DeviseTokenAuth::RegistrationsCon
 
     if resource.save
       # yield resource if block_given?
+      # Manually send confirmation email (Devise won't trigger in custom controllers...)
+      resource.send_confirmation_instructions if resource.class.devise_modules.include?(:confirmable)
 
       render_success(
         data: resource.as_json(only: [ :id, :email, :user_name, :display_name ]),
