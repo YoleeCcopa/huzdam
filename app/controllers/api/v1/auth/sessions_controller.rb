@@ -1,44 +1,39 @@
 class Api::V1::Auth::SessionsController < DeviseTokenAuth::SessionsController
   include ApiResponse
 
-  # Override the default create method for sign-in (log in)
   def create
-    # Check if the email or username is provided in params
-    user_param = params[:email] || params[:user_name]
+    identifier = params[:identifier]
+    password = params[:password]
 
-    # Attempt to find the user based on email or username
-    user = User.find_by("email = ? OR user_name = ?", user_param, user_param)
+    user = User.find_by(email: identifier) || User.find_by(user_name: identifier)
 
-    if user
-      # Perform the login
-      if user.valid_password?(params[:password])
-        # Sign in the user
-        sign_in(user)
-        render json: {
-          status: "success",
-          data: user.slice(
-            :id, :email, :uid, :provider, :allow_password_change,
-            :user_name, :display_name, :image, :role_id
-          )
-        }
+    unless user
+      return render_not_found("User")
+    end
+
+    if password.present?
+      if user.valid_password?(password)
+        sign_in(:user, user)
+
+        # Generate and set token headers
+        token_data = user.create_new_auth_token
+        response.headers.merge!(token_data)
+
+        return render_success(
+          data: user.as_json(only: %i[id email user_name display_name image]),
+          message: "Login successful"
+        )
       else
-        render json: {
-          status: "error",
-          message: "Invalid password"
-        }, status: :unauthorized
+        return render_error(message: "Invalid password", code: :invalid_password, status: :unauthorized)
       end
     else
-      render json: {
-        status: "error",
-        message: "User not found"
-      }, status: :unauthorized
-    end
-  end
+      user.generate_magic_login_token!
+      ApplicationMailer.send_token(user).deliver_later
 
-  # Optionally override other methods, e.g., destroy (log out)
-  def destroy
-    super do
-      render_success(message: "Signed out successfully")
+      return render_success(
+        message: "Magic login link sent to your email",
+        data: user.as_json(only: %i[id email user_name])
+      )
     end
   end
 end

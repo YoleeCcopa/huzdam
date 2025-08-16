@@ -19,6 +19,22 @@ class User < ApplicationRecord
   validates :user_name, presence: true, uniqueness: true
   validates :display_name, presence: true
   validates :email, presence: true, uniqueness: true
+  
+  def generate_magic_login_token!
+    self.magic_login_token = Devise.friendly_token
+    self.magic_login_sent_at = Time.current
+    save!
+  end
+
+  def magic_login_token_valid?
+    magic_login_sent_at > 30.minutes.ago
+  end
+
+  def clear_magic_login_token!
+    self.magic_login_token = nil
+    self.magic_login_sent_at = nil
+    save!
+  end
 
   # Shortcut: get a role for a given object
   def role_for(object)

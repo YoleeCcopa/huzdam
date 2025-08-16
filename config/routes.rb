@@ -7,6 +7,7 @@ Rails.application.routes.draw do
         registrations: "api/v1/auth/registrations",
         sessions: "api/v1/auth/sessions"
       }
+      get '/magic_login', to: 'auth/sessions#magic_login', as: :magic_login
 
       resources :user_roles, only: [ :create, :update, :destroy ]
       resources :denied_accesses, only: [] do
