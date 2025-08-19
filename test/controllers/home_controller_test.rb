@@ -3,7 +3,7 @@ require "test_helper"
 class HomeControllerTest < ActionDispatch::IntegrationTest
   setup do
     User.create!(
-      identifier: "test@example.com",
+      email: "test@example.com",
       password: "password123",
       user_name: "test",
       uid: SecureRandom.uuid,
