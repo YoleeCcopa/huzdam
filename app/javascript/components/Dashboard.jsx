@@ -56,7 +56,7 @@ const Dashboard = () => {
   return (
     <div>
       <h1>Welcome to your Dashboard</h1>
-      <button onClick={AuthService.logout()}>Logout</button>
+      <button onClick={() => AuthService.logout()}>Logout</button>
 
       {/* Error message */}
       {error && <p style={{ color: 'red' }}>{error}</p>}
