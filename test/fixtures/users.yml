@@ -1,9 +1,9 @@
 one: 
-  email: temp@example.com
+  identifier: temp@example.com
   uid: 123e4567-e89b-12d3-a456-426614174000
   provider: email
   
 two: 
-  email: task@example.com
+  identifier: task@example.com
   uid: 123e4567-e89b-12d5-a456-426614174000
   provider: email
