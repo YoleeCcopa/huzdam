@@ -10,6 +10,7 @@ const Shelves = () => {
 
   const [shelves, setShelves] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingAreas, setLoadingAreas] = useState(true);
   const [error, setError] = useState(null); // For handling errors
   const [areas, setAreas] = useState([]);
 

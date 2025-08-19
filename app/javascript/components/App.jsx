@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import AuthPage from './AuthPage';
 import Dashboard from './Dashboard';
 import Shelves from './Shelves';
+import Containers from './Containers';
 import useAuthGuard from '../hooks/useAuthGuard';
 import useTrackLastLocation from '../hooks/useTrackLastLocation';
 
@@ -35,6 +36,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Shelves />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/containers"
+          element={
+            <ProtectedRoute>
+              <Containers />
             </ProtectedRoute>
           }
         />
