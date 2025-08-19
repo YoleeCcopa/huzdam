@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useAuthGuard from '../hooks/useAuthGuard';
-import { logout } from '../utils/auth';
+import { AuthService } from '../services/authService';
 import { get, post, patch } from '../utils/api';
 import ShelfForm from './shelves/ShelfForm';
 import ShelfDisplay from './shelves/ShelfDisplay';
@@ -71,7 +71,7 @@ const Shelves = () => {
   return (
     <div>
       <h1>Welcome to your Dashboard</h1>
-      <button onClick={logout}>Logout</button>
+      <button onClick={AuthService.logout()}>Logout</button>
 
       {/* Error message */}
       {error && <p style={{ color: 'red' }}>{error}</p>}

@@ -2,7 +2,7 @@ require_dependency "object_permissions"  # This ensures the file is loaded.
 
 class Container < ApplicationRecord
   include ObjectPermissions
-  
+
   has_many :containers, as: :parent
   has_many :items
 

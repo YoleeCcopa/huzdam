@@ -1,32 +1,31 @@
-import { getAuthHeaders } from './auth';
+import { AuthService } from '../services/authService';
 
 // Utility function to handle API requests
-const apiRequest = async (url, method = 'GET', body = null) => {
+const apiRequest = async (url, method = 'GET', body = null, auth = true) => {
   const headers = {
     'Content-Type': 'application/json',
-    ...getAuthHeaders(),
+    Accept: 'application/json',
+    ...(auth ? AuthService.getTokenHeaders() : {}),
   };
 
   const options = { method, headers };
-  if (body) options.body = JSON.stringify(body);
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
 
   try {
     const response = await fetch(url, options);
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      return { status: 'error', message: errorData?.message || 'API request failed', errors: errorData?.errors };
-    }
-
     const json = await response.json();
 
-    // Unwrap here:
-    if (json.success) {
-      return { status: 'success', data: json.data, message: json.message };
-    } else {
-      // Backend may send success: false with error info
-      return { status: 'error', message: json.message, errors: json.errors };
+    if (!response.ok) {
+      return {
+        status: 'error',
+        message: json?.message || 'API request failed',
+        errors: json?.errors,
+      };
     }
+
+    return { status: 'success', data: json.data, message: json.message };
   } catch (error) {
     console.error('API Error:', error);
     return { status: 'error', message: error.message || 'Something went wrong' };
@@ -34,23 +33,23 @@ const apiRequest = async (url, method = 'GET', body = null) => {
 };
 
 // GET request
-const get = async (url) => {
-  return apiRequest(url, 'GET');
+const get = async (url, auth = true) => {
+  return apiRequest(url, 'GET', null, auth);
 };
 
 // POST request
-const post = async (url, data) => {
-  return apiRequest(url, 'POST', data);
+const post = async (url, data, auth = true) => {
+  return apiRequest(url, 'POST', data, auth);
 };
 
 // PATCH request
-const patch = async (url, data) => {
-  return apiRequest(url, 'PATCH', data);
+const patch = async (url, data, auth = true) => {
+  return apiRequest(url, 'PATCH', data, auth);
 };
 
 // DELETE request
-const del = async (url) => {
-  return apiRequest(url, 'DELETE');
+const del = async (url, auth = true) => {
+  return apiRequest(url, 'DELETE', null, auth);
 };
 
 export { get, post, patch, del };

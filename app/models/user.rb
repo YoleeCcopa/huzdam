@@ -19,7 +19,7 @@ class User < ApplicationRecord
   validates :user_name, presence: true, uniqueness: true
   validates :display_name, presence: true
   validates :email, presence: true, uniqueness: true
-  
+
   def generate_magic_login_token!
     self.magic_login_token = Devise.friendly_token
     self.magic_login_sent_at = Time.current

@@ -8,10 +8,10 @@ Rails.application.routes.draw do
         sessions: "api/v1/auth/sessions"
       }
       devise_scope :user do
-        get 'magic_login', to: 'auth/sessions#magic_login'
+        get "magic_login", to: "auth/sessions#magic_login"
       end
 
-      resources :user_roles, only: [:create, :update, :destroy]
+      resources :user_roles, only: [ :create, :update, :destroy ]
 
       resources :denied_accesses, only: [] do
         collection do
@@ -20,9 +20,9 @@ Rails.application.routes.draw do
       end
 
       resources :users
-      resources :areas,      only: [:index, :create, :show, :update, :destroy]
-      resources :shelves,    only: [:index, :create, :show, :update, :destroy]
-      resources :containers, only: [:index, :create, :show, :update, :destroy]
+      resources :areas,      only: [ :index, :create, :show, :update, :destroy ]
+      resources :shelves,    only: [ :index, :create, :show, :update, :destroy ]
+      resources :containers, only: [ :index, :create, :show, :update, :destroy ]
     end
   end
 

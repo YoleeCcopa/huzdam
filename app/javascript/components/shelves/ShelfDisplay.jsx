@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { del, get } from '../../utils/api';
+import { get, del } from '../../utils/api';
 import ShelfForm from './ShelfForm';
 import SearchBar from '../generics/SearchBar';
 

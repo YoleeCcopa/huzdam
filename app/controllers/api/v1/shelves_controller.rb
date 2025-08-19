@@ -1,5 +1,5 @@
 class Api::V1::ShelvesController < Api::V1::BaseController
-  before_action :set_shelf, only: [:show, :update, :destroy]
+  before_action :set_shelf, only: [ :show, :update, :destroy ]
 
   # GET /api/v1/shelves
   def index

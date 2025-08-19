@@ -1,22 +1,27 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import SignupForm from './SignupForm';
-import LoginForm from './LoginForm';
+import AuthPage from './AuthPage';
 import Dashboard from './Dashboard';
 import Shelves from './Shelves';
 import useAuthGuard from '../hooks/useAuthGuard';
+import useTrackLastLocation from '../hooks/useTrackLastLocation';
 
 const ProtectedRoute = ({ children }) => {
   useAuthGuard();
   return children;
 };
 
+const TrackLastLocationWrapper = () => {
+  useTrackLastLocation();
+  return null;
+};
+
 const App = () => {
   return (
     <Router>
+      <TrackLastLocationWrapper />
       <Routes>
-        <Route path="/signup" element={<SignupForm />} />
-        <Route path="/login" element={<LoginForm />} />
+        <Route path="/auth" element={<AuthPage />} />
         <Route
           path="/dashboard"
           element={
@@ -33,7 +38,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/auth" replace />} />
       </Routes>
     </Router>
   );

@@ -1,5 +1,5 @@
 class Api::V1::AreasController < Api::V1::BaseController
-  before_action :set_area, only: [:show, :update, :destroy]
+  before_action :set_area, only: [ :show, :update, :destroy ]
 
   # GET /api/v1/areas
   def index
