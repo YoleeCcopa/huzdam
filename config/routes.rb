@@ -23,6 +23,7 @@ Rails.application.routes.draw do
       resources :areas,      only: [ :index, :create, :show, :update, :destroy ]
       resources :shelves,    only: [ :index, :create, :show, :update, :destroy ]
       resources :containers, only: [ :index, :create, :show, :update, :destroy ]
+      resources :items,      only: [ :index, :create, :show, :update, :destroy ]
     end
   end
 

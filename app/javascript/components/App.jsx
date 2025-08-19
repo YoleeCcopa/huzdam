@@ -4,6 +4,7 @@ import AuthPage from './AuthPage';
 import Dashboard from './Dashboard';
 import Shelves from './Shelves';
 import Containers from './Containers';
+import Items from './Items';
 import useAuthGuard from '../hooks/useAuthGuard';
 import useTrackLastLocation from '../hooks/useTrackLastLocation';
 
@@ -44,6 +45,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Containers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/items"
+          element={
+            <ProtectedRoute>
+              <Items />
             </ProtectedRoute>
           }
         />
