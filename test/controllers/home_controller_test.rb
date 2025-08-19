@@ -5,6 +5,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     User.create!(
       email: "test@example.com",
       password: "password123",
+      user_name: "test",
+      display_name: "test",
       uid: SecureRandom.uuid,
       provider: "email"
     )

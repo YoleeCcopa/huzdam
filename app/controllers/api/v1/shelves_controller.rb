@@ -3,19 +3,18 @@ class Api::V1::ShelvesController < Api::V1::BaseController
 
   # GET /api/v1/shelves
   def index
-    render json: current_user.shelves
+    render_success(data: current_user.shelves, message: "Shelves loaded successfully")
   end
 
   # GET /api/v1/shelves/:id
   def show
-    render json: @shelf
+    render_success(data: @shelf, message: "Shelf found")
   end
 
   # POST /api/v1/shelves
   def create
     @shelf = current_user.shelves.new(shelf_params)
 
-    # Resolve polymorphic parent
     parent_type = shelf_params[:parent_type]
     parent_id = shelf_params[:parent_id]
 
@@ -25,24 +24,21 @@ class Api::V1::ShelvesController < Api::V1::BaseController
       @shelf.parent = parent
     end
 
-    Rails.logger.debug("Attempting to save shelf: #{@shelf.attributes}")
-
     if @shelf.save
-      render json: @shelf, status: :created
+      render_success(data: @shelf, message: "Shelf created successfully", status: :created)
     else
-      Rails.logger.warn("Shelf creation failed: #{@shelf.errors.full_messages}")
-      render json: {
-        message: "Shelf creation failed.",
+      render_error(
+        message: "Shelf creation failed",
         errors: @shelf.errors.full_messages,
         fields: @shelf.errors.to_hash
-      }, status: :unprocessable_entity
+      )
     end
   end
 
   # PATCH /api/v1/shelves/:id
   def update
     unless @shelf.editable_by?(current_user)
-      render json: { error: "You are not authorized to edit this shelf" }, status: :forbidden and return
+      return render_forbidden("You are not authorized to edit this shelf")
     end
 
     if parent_params_provided?
@@ -52,27 +48,31 @@ class Api::V1::ShelvesController < Api::V1::BaseController
     end
 
     if @shelf.update(shelf_params)
-      render json: @shelf, status: :ok
+      render_success(data: @shelf, message: "Shelf updated successfully")
     else
-      render json: { errors: @shelf.errors.full_messages }, status: :unprocessable_entity
+      render_error(
+        message: "Shelf update failed",
+        errors: @shelf.errors.full_messages,
+        fields: @shelf.errors.to_hash
+      )
     end
   end
 
   # DELETE /api/v1/shelves/:id
   def destroy
     unless @shelf.deletable_by?(current_user)
-      render json: { error: "You are not authorized to delete this shelf" }, status: :forbidden and return
+      return render_forbidden("You are not authorized to delete this shelf")
     end
 
     @shelf.destroy
-    head :no_content
+    render_success(message: "Shelf deleted successfully", data: nil)
   end
 
   private
 
   def set_shelf
     @shelf = Shelf.find_by(id: params[:id])
-    render json: { error: "Shelf not found" }, status: :not_found unless @shelf
+    render_not_found("Shelf") unless @shelf
   end
 
   def shelf_params
@@ -89,11 +89,10 @@ class Api::V1::ShelvesController < Api::V1::BaseController
 
     unless result.success?
       Rails.logger.warn("Parent resolution failed: #{result.error}")
-      render json: { error: result.error }, status: :unprocessable_entity
+      render_error(message: result.error)
       return nil
     end
 
-    Rails.logger.debug("Resolved parent: #{result.parent.class.name}##{result.parent.id}")
     result.parent
   end
 end

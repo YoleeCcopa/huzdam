@@ -1,0 +1,9 @@
+<p>Hello <%= @user.display_name || @user.user_name %>,</p>
+
+<p>Click the link below to log in:</p>
+
+<p>
+  <a href="<%= api_v1_magic_login_url(token: @user.magic_login_token) %>">
+    Log in instantly
+  </a>
+</p>

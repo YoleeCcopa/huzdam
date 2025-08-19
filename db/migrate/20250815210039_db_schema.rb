@@ -1,4 +1,4 @@
-class DbStructure < ActiveRecord::Migration[8.0]
+class DbSchema < ActiveRecord::Migration[8.0]
   def change
     drop_table :tag_properties
     drop_table :item_properties
@@ -25,6 +25,8 @@ class DbStructure < ActiveRecord::Migration[8.0]
       ## Recoverable
       t.string   :reset_password_token
       t.datetime :reset_password_sent_at
+      t.string   :magic_login_token
+      t.datetime :magic_login_sent_at
       t.boolean  :allow_password_change, default: false
       ## Rememberable
       t.datetime :remember_created_at
@@ -34,9 +36,9 @@ class DbStructure < ActiveRecord::Migration[8.0]
       t.datetime :confirmation_sent_at
       t.string   :unconfirmed_email # Only if using reconfirmable
       ## User Info
-      t.string :user_name
+      t.string :user_name, null: false
       t.string :display_name
-      t.string :email
+      t.string :email, null: false
       t.string :image
       ## Tokens
       t.json :tokens
@@ -44,11 +46,12 @@ class DbStructure < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :users, :email,                unique: true
-    add_index :users, :user_name,            unique: true
-    add_index :users, [ :uid, :provider ],     unique: true
-    add_index :users, :reset_password_token, unique: true
-    add_index :users, :confirmation_token,   unique: true
+    add_index :users, :email,                 unique: true
+    add_index :users, :user_name,             unique: true
+    add_index :users, [ :uid, :provider ],    unique: true
+    add_index :users, :reset_password_token,  unique: true
+    add_index :users, :magic_login_token,     unique: true
+    add_index :users, :confirmation_token,    unique: true
 
     # Optional: mark existing users as confirmed
     User.update_all(confirmed_at: Time.current)
@@ -67,8 +70,8 @@ class DbStructure < ActiveRecord::Migration[8.0]
     end
 
     create_table :permissions_roles, id: false do |t|
-      t.belongs_to :role
-      t.belongs_to :permission
+      t.belongs_to :role, null: false
+      t.belongs_to :permission, null: false
     end
 
     add_reference :users, :role, foreign_key: true
@@ -149,7 +152,6 @@ class DbStructure < ActiveRecord::Migration[8.0]
       t.references :parent, foreign_key: { to_table: :tags }, index: true
 
       t.string :name, null: false
-      t.string :custom_label
       t.text :description
 
       t.timestamps

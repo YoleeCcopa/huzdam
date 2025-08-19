@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_12_220628) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_15_210039) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -92,8 +92,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_220628) do
   end
 
   create_table "permissions_roles", id: false, force: :cascade do |t|
-    t.bigint "role_id"
-    t.bigint "permission_id"
+    t.bigint "role_id", null: false
+    t.bigint "permission_id", null: false
     t.index ["permission_id"], name: "index_permissions_roles_on_permission_id"
     t.index ["role_id"], name: "index_permissions_roles_on_role_id"
   end
@@ -140,7 +140,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_220628) do
     t.bigint "user_id", null: false
     t.bigint "parent_id"
     t.string "name", null: false
-    t.string "custom_label"
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -167,15 +166,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_220628) do
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
+    t.string "magic_login_token"
+    t.datetime "magic_login_sent_at"
     t.boolean "allow_password_change", default: false
     t.datetime "remember_created_at"
     t.string "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
-    t.string "user_name"
+    t.string "user_name", null: false
     t.string "display_name"
-    t.string "email"
+    t.string "email", null: false
     t.string "image"
     t.json "tokens"
     t.datetime "created_at", null: false
@@ -183,6 +184,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_12_220628) do
     t.bigint "role_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["magic_login_token"], name: "index_users_on_magic_login_token", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["role_id"], name: "index_users_on_role_id"
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true

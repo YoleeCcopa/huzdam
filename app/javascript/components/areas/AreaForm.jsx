@@ -1,57 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import FormInput from '../generics/FormInput';
 
-const AreaForm = ({ handleCreateArea }) => {
-  const [newName, setNewName] = useState('');
-  const [newDescription, setNewDescription] = useState('');
-  const [error, setError] = useState(null);
+const AreaForm = ({ onSubmit, area = null, onCancel }) => {
+  const [form, setForm] = useState({
+    name: '',
+    description: ''
+  });
 
-  // Handle form submission
-  const handleFormSubmit = (event) => {
-    event.preventDefault();
+  useEffect(() => {
+    if (area) {
+      setForm({
+        name: area.name || '',
+        description: area.description || ''
+      });
+    }
+  }, [area]);
 
-    // Prepare areaData as an object
-    const areaData = {
-      name: newName,
-      description: newDescription,
-    };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-    // Pass the data to the parent through the callback function
-    handleCreateArea(areaData);
-
-    // Clear form fields after submission
-    setNewName('');
-    setNewDescription('');
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(form);
+    if (!area) {
+      setForm({ name: '', description: '' });
+    }
   };
 
   return (
-    <div>
-      <h2>Form</h2>
-      {/* Error message */}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      <form onSubmit={handleFormSubmit}>
-        <div>
-          <input
-            type="text"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="Enter new area name"
-            required
-          />
-        </div>
-        <div>
-          <input
-            type="text"
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
-            placeholder="Enter new area description"
-          />
-        </div>
-        <div>
-          <button type="submit">Create New Area</button>
-        </div>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <FormInput name="name" value={form.name} onChange={handleChange} placeholder="Area name" required />
+      <FormInput name="description" value={form.description} onChange={handleChange} placeholder="Description" />
+      <button type="submit">{area ? 'Save' : 'Create New Area'}</button>
+      {area && <button type="button" onClick={onCancel}>Cancel</button>}
+    </form>
   );
 };
 

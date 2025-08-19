@@ -1,49 +1,24 @@
 import React, { useState } from 'react';
 import { get, del } from '../../utils/api';
-import ShelfEditForm from './ShelfEditForm';
+import ShelfForm from './ShelfForm';
+import SearchBar from '../generics/SearchBar';
 
 const ShelfDisplay = ({ data, loading, onUpdateShelf, setShelves, areas }) => {
   const [editingShelf, setEditingShelf] = useState(null);
-  const [newValues, setNewValues] = useState(clearFormValues());
+  const [searchTerm, setSearchTerm] = useState('');
 
-  function clearFormValues() {
-    return {
-      name: '',
-      description: '',
-      template: '',
-      parent_id: '',
-      parent_type: 'Area'
-    };
-  }
+  const handleEditClick = (shelf) => setEditingShelf(shelf);
 
-  const handleEditClick = (shelf) => {
-    setEditingShelf(shelf);
-    setNewValues({
-      name: shelf.name || '',
-      description: shelf.description || '',
-      template: shelf.template || '',
-      parent_id: shelf.parent_id || '',
-      parent_type: shelf.parent_type || 'Area'
-    });
-  };
+  const handleCancelClick = () => setEditingShelf(null);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewValues((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSaveClick = async () => {
-    if (!editingShelf) return;
-
+  const handleSaveClick = async (form) => {
     const payload = {};
-
-    for (const key in newValues) {
+    for (const key in form) {
       if (
-        newValues[key] !== undefined &&
-        newValues[key] !== '' &&
-        newValues[key] !== editingShelf[key]
+        form[key] !== '' &&
+        editingShelf[key] !== form[key]
       ) {
-        payload[key] = newValues[key];
+        payload[key] = form[key];
       }
     }
 
@@ -54,18 +29,10 @@ const ShelfDisplay = ({ data, loading, onUpdateShelf, setShelves, areas }) => {
 
     try {
       await onUpdateShelf(editingShelf.id, payload);
-
       setEditingShelf(null);
-      setNewValues(clearFormValues());
     } catch (error) {
-      console.error('Error saving shelf:', error);
       alert('Failed to save shelf');
     }
-  };
-
-  const handleCancelClick = () => {
-    setEditingShelf(null);
-    setNewValues(clearFormValues());
   };
 
   const handleDeleteClick = async (shelfId) => {
@@ -75,28 +42,14 @@ const ShelfDisplay = ({ data, loading, onUpdateShelf, setShelves, areas }) => {
         await del(`/api/v1/shelves/${shelfId}`);
         const shelvesData = await get('/api/v1/shelves');
         setShelves(shelvesData.data);
-        alert('Shelf deleted successfully');
       } catch (error) {
-        console.error('Error deleting shelf:', error);
         alert('Failed to delete shelf');
       }
     }
   };
 
-  const [searchTerm, setSearchTerm] = useState('');
-  
   const filteredShelves = data.filter(shelf =>
     shelf.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const SearchBar = ({ searchTerm, setSearchTerm }) => (
-    <input
-      type="text"
-      placeholder="Search areas by name..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      style={{ marginBottom: '1rem', padding: '0.5rem', width: '100%' }}
-    />
   );
 
   return (
@@ -118,10 +71,9 @@ const ShelfDisplay = ({ data, loading, onUpdateShelf, setShelves, areas }) => {
                 <button onClick={() => handleDeleteClick(shelf.id)}>Delete</button>
 
                 {editingShelf?.id === shelf.id && (
-                  <ShelfEditForm
-                    newValues={newValues}
-                    onChange={handleInputChange}
-                    onSave={handleSaveClick}
+                  <ShelfForm
+                    shelf={editingShelf}
+                    onSubmit={handleSaveClick}
                     onCancel={handleCancelClick}
                     areas={areas}
                   />

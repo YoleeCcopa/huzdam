@@ -1,0 +1,13 @@
+<h1><%= t('.subject') %></h1>
+
+<p><%= t('.greeting', name: @resource.display_name || @resource.email) %></p>
+
+<p>
+  <%= t('.instruction') %>
+</p>
+
+<p>
+  <a href="<%= confirmation_url(@resource, confirmation_token: @token) %>">
+    <%= t('.cta') %>
+  </a>
+</p>

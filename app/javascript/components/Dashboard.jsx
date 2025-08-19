@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useAuthGuard from '../hooks/useAuthGuard';
-import { logout } from '../utils/auth';
+import { AuthService } from '../services/authService';
 import { get, post, patch } from '../utils/api';
 import AreaForm from './areas/AreaForm';
 import AreaDisplay from './areas/AreaDisplay';
@@ -39,13 +39,9 @@ const Dashboard = () => {
   };
 
   // API call to update the area (name or description)
-  const onUpdateArea = async (areaId, field, newValue) => {
-    // const updatedArea = { [field]: newValue }; // Update only the field that was changed
+  const onUpdateArea = async (areaId, updatedFields) => {
     try {
-      // Call the patch function from the apiUtils
-      const updatedArea = await patch(`/api/v1/areas/${areaId}`, { [field]: newValue });
-
-      // Update only the field that was changed in the state
+      const updatedArea = await patch(`/api/v1/areas/${areaId}`, updatedFields);
       setAreas((prevAreas) =>
         prevAreas.map((area) =>
           area.id === areaId ? { ...area, ...updatedArea.data } : area
@@ -53,19 +49,20 @@ const Dashboard = () => {
       );
     } catch (error) {
       console.error('Error updating area:', error);
+      alert('Failed to update area.');
     }
   };
 
   return (
     <div>
       <h1>Welcome to your Dashboard</h1>
-      <button onClick={logout}>Logout</button>
+      <button onClick={() => AuthService.logout()}>Logout</button>
 
       {/* Error message */}
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {/* Create new area form */}
-      <AreaForm handleCreateArea={handleCreateArea} />
+      <AreaForm onSubmit={handleCreateArea} />
 
       {/* Display areas */}
       <AreaDisplay data={areas} loading={loading} onUpdateArea={onUpdateArea} setAreas={setAreas} />

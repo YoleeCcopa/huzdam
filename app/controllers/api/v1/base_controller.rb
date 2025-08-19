@@ -1,5 +1,6 @@
 class Api::V1::BaseController < ActionController::API
   include DeviseTokenAuth::Concerns::SetUserByToken  # Ensures the user is authenticated by the token
+  include ApiResponse
 
   before_action :authenticate_api_v1_user!
 

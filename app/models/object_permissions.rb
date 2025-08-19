@@ -3,7 +3,7 @@ module ObjectPermissions
 
   included do
     belongs_to :user  # The owner
-    belongs_to :parent, polymorphic: true, optional: true # The object this belongs to, e.g., Area, Shelf, Container, etc.
+    belongs_to :parent, polymorphic: true, optional: true # e.g., Area, Shelf, Container.
 
     has_many :user_roles, as: :object
     has_many :users, through: :user_roles

@@ -1,63 +1,51 @@
 class Api::V1::AreasController < Api::V1::BaseController
   before_action :set_area, only: [ :show, :update, :destroy ]
-  # load_and_authorize_resource
 
   # GET /api/v1/areas
   def index
-    Rails.logger.debug("Current User: #{current_user.inspect}")
-    @areas = current_user.areas
-    render json: @areas
+    render_success(data: current_user.areas, message: "Areas loaded")
   end
 
   # GET /api/v1/areas/:id
   def show
-    Rails.logger.debug("Current User: #{current_user.inspect}")
-    render json: @area
+    render_success(data: @area, message: "Area details")
   end
 
   # POST /api/v1/areas
   def create
-    @area = Area.new(area_params)
-    @area.user = current_user
-    Rails.logger.debug("Current user: #{@area.user.inspect}")  # Log user for debugging
+    @area = current_user.areas.new(area_params)
 
     if @area.save
-      render json: @area, status: :created
+      render_success(data: @area, message: "Area created", status: :created)
     else
-      Rails.logger.error "Area creation failed: #{@area.errors.full_messages.join(', ')}"
-      render json: @area.errors, status: :unprocessable_entity
+      render_error(message: "Area creation failed", errors: @area.errors.full_messages, fields: @area.errors.to_hash)
     end
   end
 
   # PATCH /api/v1/areas/:id
   def update
-    unless @area.editable_by?(current_user)
-      render json: { error: "You are not authorized to edit this area" }, status: :forbidden
-      return
-    end
+    return render_forbidden unless @area.editable_by?(current_user)
 
     if @area.update(area_params)
-      render json: @area, status: :ok
+      render_success(data: @area, message: "Area updated")
     else
-      render json: @area.errors, status: :unprocessable_entity
+      render_error(message: "Area update failed", errors: @area.errors.full_messages, fields: @area.errors.to_hash)
     end
   end
 
   # DELETE /api/v1/areas/:id
   def destroy
-    unless @area.deletable_by?(current_user)
-      render json: { error: "You are not authorized to delete this area" }, status: :forbidden
-      return
-    end
+    return render_forbidden unless @area.deletable_by?(current_user)
 
     @area.destroy
-    head :no_content
+    render_success(message: "Area deleted", data: nil)
   end
 
   private
 
   def set_area
-    @area = Area.find(params[:id])
+    @area = Area.find_by(id: params[:id])
+    render_not_found("Area") unless @area
   end
 
   def area_params

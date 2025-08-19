@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useAuthGuard from '../hooks/useAuthGuard';
-import { logout } from '../utils/auth';
+import { AuthService } from '../services/authService';
 import { get, post, patch } from '../utils/api';
 import ShelfForm from './shelves/ShelfForm';
 import ShelfDisplay from './shelves/ShelfDisplay';
@@ -10,35 +10,37 @@ const Shelves = () => {
 
   const [shelves, setShelves] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingAreas, setLoadingAreas] = useState(true);
   const [error, setError] = useState(null); // For handling errors
   const [areas, setAreas] = useState([]);
 
   // Fetch areas when the component mounts
   useEffect(() => {
     const getShelves = async () => {
+      setLoading(true);
       try {
         const shelvesData = await get('/api/v1/shelves');
         setShelves(shelvesData.data);
       } catch (error) {
         setError('Failed to load shelves.');
       } finally {
-        setLoading(false); // Set loading to false once the fetch is complete
+        setLoading(false);
       }
     };
 
-    getShelves();
-
     const getAreas = async () => {
+      setLoadingAreas(true);
       try {
         const areasData = await get('/api/v1/areas');
         setAreas(areasData.data);
       } catch (error) {
         setError('Failed to load areas.');
       } finally {
-        setLoading(false); // Set loading to false once the fetch is complete
+        setLoadingAreas(false);
       }
     };
 
+    getShelves();
     getAreas();
   }, []);
 
@@ -71,13 +73,13 @@ const Shelves = () => {
   return (
     <div>
       <h1>Welcome to your Dashboard</h1>
-      <button onClick={logout}>Logout</button>
+      <button onClick={() => AuthService.logout()}>Logout</button>
 
       {/* Error message */}
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {/* Create new area form */}
-      <ShelfForm handleCreateShelf={handleCreateShelf} areas={areas} />
+      <ShelfForm onSubmit={handleCreateShelf} areas={areas} />
 
       {/* Display areas */}
       <ShelfDisplay data={shelves} loading={loading} onUpdateShelf={onUpdateShelf} setShelves={setShelves} areas={areas} />

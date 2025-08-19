@@ -18,7 +18,10 @@ en:
       unconfirmed: "You have to confirm your email address before continuing."
     mailer:
       confirmation_instructions:
-        subject: "Confirmation instructions"
+        subject: "Welcome to YourApp!"
+        greeting: "Hello %{name},"
+        instruction: "Please confirm your account by clicking the button below:"
+        cta: "Confirm my account"
       reset_password_instructions:
         subject: "Reset password instructions"
       unlock_instructions:
