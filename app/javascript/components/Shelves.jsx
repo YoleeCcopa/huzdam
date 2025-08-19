@@ -16,29 +16,30 @@ const Shelves = () => {
   // Fetch areas when the component mounts
   useEffect(() => {
     const getShelves = async () => {
+      setLoading(true);
       try {
         const shelvesData = await get('/api/v1/shelves');
         setShelves(shelvesData.data);
       } catch (error) {
         setError('Failed to load shelves.');
       } finally {
-        setLoading(false); // Set loading to false once the fetch is complete
+        setLoading(false);
       }
     };
 
-    getShelves();
-
     const getAreas = async () => {
+      setLoadingAreas(true);
       try {
         const areasData = await get('/api/v1/areas');
         setAreas(areasData.data);
       } catch (error) {
         setError('Failed to load areas.');
       } finally {
-        setLoading(false); // Set loading to false once the fetch is complete
+        setLoadingAreas(false);
       }
     };
 
+    getShelves();
     getAreas();
   }, []);
 

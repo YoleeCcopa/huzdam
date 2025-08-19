@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthService } from '../services/authService';
 
-export default function useAuthGuard(redirectTo = '/login') {
+export default function useAuthGuard(redirectTo = '/auth') {
   const navigate = useNavigate();
 
   useEffect(() => {

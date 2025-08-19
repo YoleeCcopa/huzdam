@@ -92,7 +92,7 @@ export const AuthService = {
 
     if (res.ok) {
       AuthService.clearTokenHeaders();
-      window.location.href = '/login'; // Redirect to login page after logout
+      window.location.href = '/auth'; // Redirect to login page after logout
     } else {
       console.error('Logout failed');
     }
