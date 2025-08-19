@@ -1,9 +1,11 @@
 one: 
   email: temp@example.com
+  user_name: temp1
   uid: 123e4567-e89b-12d3-a456-426614174000
   provider: email
   
 two: 
   email: task@example.com
+  user_name: tasky
   uid: 123e4567-e89b-12d5-a456-426614174000
   provider: email
