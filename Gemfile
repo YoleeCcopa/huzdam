@@ -58,7 +58,7 @@ group :test do
   gem "selenium-webdriver"
 end
 
-gem "shakapacker", "= 8.3"
+gem "shakapacker", "9.0.0"
 gem "react_on_rails", "= 14.0.4"
 gem "tailwindcss-ruby", "~> 4.1"
 gem "tailwindcss-rails", "~> 4.3"
